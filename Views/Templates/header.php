@@ -173,7 +173,6 @@ $reservas = new ReservasModel();
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a class="nav-link" href="<?php echo base_url . 'usuarios'; ?>">Usuarios</a></li>
                                 <li class="nav-item"> <a class="nav-link" href="<?php echo base_url . 'clientes'; ?>">Clientes</a></li>
-                                <li class="nav-item"> <a class="nav-link" href="<?php echo base_url . 'documentos'; ?>">Documentos</a></li>
                                 <li class="nav-item"> <a class="nav-link" href="<?php echo base_url . 'empresa'; ?>">Configuración</a></li>
                             </ul>
                         </div>
@@ -193,15 +192,15 @@ $reservas = new ReservasModel();
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="collapse" href="#ui-alquilar" aria-expanded="false" aria-controls="ui-alquilar">
+                        <a class="nav-link" data-toggle="collapse" href="#ui-servicios" aria-expanded="false" aria-controls="ui-servicios">
                             <i class="typcn typcn-film menu-icon"></i>
-                            <span class="menu-title">Alquileres</span>
+                            <span class="menu-title">Servicios</span>
                             <i class="menu-arrow"></i>
                         </a>
-                        <div class="collapse" id="ui-alquilar">
+                        <div class="collapse" id="ui-servicios">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"><a class="nav-link" href="<?php echo base_url . 'alquiler'; ?>">Rentas</a></li>
-                                <li class="nav-item"><a class="nav-link" href="<?php echo base_url . 'alquiler/pdfAlquiler'; ?>" target="_blank">Reportes</a></li>
+                                <li class="nav-item"><a class="nav-link" href="<?php echo base_url . 'servicios'; ?>">Servicios</a></li>
+                                <li class="nav-item"><a class="nav-link" href="<?php echo base_url . 'servicios/reporte'; ?>" target="_blank">Reportes</a></li>
                             </ul>
                         </div>
                     </li>

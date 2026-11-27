@@ -20,7 +20,7 @@ class Reservas extends Controller
     public function index()
     {
         $data['vehiculos'] = $this->model->getVehiculos();
-        $this->views->getView("alquiler/reservas", $data);
+        $this->views->getView("reservas/index", $data);
     }
 
     public function listar($id_vehiculo)
@@ -36,8 +36,8 @@ class Reservas extends Controller
                     $data[$i]['title'] = 'RESERVADO';
                 }
             }
-            $data[$i]['start'] = $data[$i]['f_recogida'];
-            $data[$i]['end'] = $data[$i]['f_entrega'];
+            $data[$i]['start'] = $data[$i]['f_inicio'];
+            $data[$i]['end'] = $data[$i]['f_fin'];
             $data[$i]['color'] = ($data[$i]['estado'] == 0) ? '#dc3545' : '#198754';
         }
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
@@ -87,7 +87,7 @@ class Reservas extends Controller
                     $msg = array('msg' => 'Error al solicitar reserva', 'icono' => 'error');
                 }
             } else {
-                $msg = array('msg' => 'El vehículo esta reservado: ' . $existe['f_recogida'] . ' hasta ' . $existe['f_entrega'], 'icono' => 'error');
+                $msg = array('msg' => 'El vehículo esta reservado: ' . $existe['f_inicio'] . ' hasta ' . $existe['f_fin'], 'icono' => 'error');
             }
         }
         echo json_encode($msg, JSON_UNESCAPED_UNICODE);
@@ -101,7 +101,7 @@ class Reservas extends Controller
         }
         $data['reserva'] = $this->model->getReserva($id);
         $data['vehiculo'] = $this->model->getVehiculo($data['reserva']['id_vehiculo']);
-        $this->views->getView("alquiler/verify", $data);
+        $this->views->getView("reservas/verify", $data);
     }
 
     public function aprobar($idReserva)

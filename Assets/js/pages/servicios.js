@@ -1,28 +1,27 @@
-let m_entrega = new bootstrap.Modal(document.getElementById('entrega'));
+let m_finalizar = new bootstrap.Modal(document.getElementById('modalFinalizar'));
 
 document.addEventListener('DOMContentLoaded', function(){
-    tblAlquiler = $('#tblAlquiler').DataTable({
+    tblServicios = $('#tblServicios').DataTable({
         responsive: true,
         processing: true,
         serverSide: false,
         ajax: {
-            url: base_url + 'alquiler/listar',
+            url: base_url + 'servicios/listar',
             dataSrc: ''
         },
-        columns: [{
-                'data': 'id'},
-            {'data': 'documento'},
+        columns: [
+            {'data': 'id'},
             {'data': 'nombre'},
             {'data': 'tipo'},
             {'data': 'placa'},
             {'data': 'modelo'},
-            {'data': 'f_prestamo'},
-            {'data': 'f_devolucion'},
+            {'data': 'f_inicio'},
+            {'data': 'f_fin'},
             {'data': 'cantidad'},
             {'data': 'monto'},
             {'data': 'abono'},
             {'data': 'estatus'},
-            {'data': 'recibir'},
+            {'data': 'finalizar'},
             {'data': 'accion'},
         ],
         language: {
@@ -31,23 +30,19 @@ document.addEventListener('DOMContentLoaded', function(){
         dom,
         buttons,
         "createdRow": function (row, data, index) {
-            //pintar una celda
+            // Resalta las filas de los servicios en curso
             if (data.estado == 1) {
-                $('td', row).eq(10).html('<span class="badge bg-dark">Prestado</span>');
                 $('td', row).css({
-                'background-color': '#FEA4AE'
+                    'background-color': '#FEA4AE'
                 });
-            } else {
-                $('td', row).eq(10).html('<span class="badge bg-success">Devuelto</span>');
             }
         },
-        resonsieve: true,
         bDestroy: true,
         iDisplayLength: 10,
         order: [
             [0, "desc"]
         ]
-    }); //Fin de la tabla alquiler
+    }); //Fin de la tabla servicios
 
     $("#select_cliente").autocomplete({
         minLength: 2,
@@ -93,14 +88,14 @@ document.addEventListener('DOMContentLoaded', function(){
     })
 })
 
-function frmAlquiler() {
-    document.getElementById("title").textContent = "Nuevo Alquiler";
+function frmServicio() {
+    document.getElementById("title").textContent = "Nuevo Servicio";
     document.getElementById("btnAccion").textContent = "Registrar";
     document.getElementById("formulario").reset();
     myModal.show();
 }
 
-function registrarAlquiler(e) {
+function registrarServicio(e) {
     e.preventDefault();
     const select_cliente = document.getElementById("select_cliente").value;
     const select_vehiculo = document.getElementById("select_vehiculo").value;
@@ -109,12 +104,11 @@ function registrarAlquiler(e) {
     const cantidad = document.getElementById("cantidad").value;
     const abono = document.getElementById("abono").value;
     const fecha = document.getElementById("fecha").value;
-    const documento = document.getElementById("documento").value;
     if (select_cliente == '' || select_vehiculo == '' || id_cli == '' || id_veh == ''
-    || cantidad == '' || abono == '' || fecha == '' || documento == '') {
+    || cantidad == '' || abono == '' || fecha == '') {
         alertify.error("Todo los campos son requeridos");
     } else {
-        const url = base_url + 'alquiler/registrar';
+        const url = base_url + 'servicios/registrar';
         const frm = document.getElementById("formulario");
         const http = new XMLHttpRequest();
         http.open("POST", url, true);
@@ -126,38 +120,40 @@ function registrarAlquiler(e) {
                     alertify.success(res.msg);
                     frm.reset();
                     myModal.hide();
-                    tblAlquiler.ajax.reload();
+                    tblServicios.ajax.reload();
                     setTimeout(() => {
-                        window.open(base_url + 'alquiler/pdfPrestamo/'+ res.id_alquiler);
+                        window.open(base_url + 'servicios/pdfServicio/' + res.id_servicio);
                     }, 2000);
-                }else{
+                } else {
                     alertify.error(res.msg);
                 }
             }
         }
     }
 }
-function entrega(id) {
-    const url = base_url + 'alquiler/ver/'+ id;
+
+// Abre el modal con el abono y el saldo pendiente antes de finalizar
+function verFinalizar(id) {
+    const url = base_url + 'servicios/ver/' + id;
     const http = new XMLHttpRequest();
     http.open("GET", url, true);
     http.send();
     http.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             const res = JSON.parse(this.responseText);
-            document.getElementById('id_alquiler').value = res.id;
+            document.getElementById('id_servicio').value = res.id;
             document.getElementById('pendiente').value = res.abono;
-            let = total = parseFloat((res.monto * res.cantidad) - res.abono);
+            const total = parseFloat((res.monto * res.cantidad) - res.abono);
             document.getElementById('monto_pagar').value = total.toFixed(2);
-            m_entrega.show();
+            m_finalizar.show();
         }
     }
-    
 }
-function procesarEntrega(e) {
+
+function finalizarServicio(e) {
     e.preventDefault();
-    const id = document.getElementById('id_alquiler').value;
-    const url = base_url + 'alquiler/procesar/' + id;
+    const id = document.getElementById('id_servicio').value;
+    const url = base_url + 'servicios/finalizar/' + id;
     const http = new XMLHttpRequest();
     http.open("GET", url, true);
     http.send();
@@ -166,11 +162,11 @@ function procesarEntrega(e) {
             const res = JSON.parse(this.responseText);
             if (res.icono == 'success') {
                 alertify.success(res.msg);
-                m_entrega.hide();
-                tblAlquiler.ajax.reload();
-            }else{
+                m_finalizar.hide();
+                tblServicios.ajax.reload();
+            } else {
                 alertify.error(res.msg);
-            }           
+            }
         }
     }
 }

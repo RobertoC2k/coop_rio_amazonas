@@ -77,7 +77,7 @@
     <div class="col-lg-6 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">Rentas por Mes</h4>
+                <h4 class="card-title">Ingresos por Mes</h4>
                 <canvas id="barChart"></canvas>
             </div>
         </div>
@@ -85,7 +85,7 @@
     <div class="col-lg-6 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">Rentas por Semana</h4>
+                <h4 class="card-title">Ingresos por Semana</h4>
                 <canvas id="pieChart"></canvas>
             </div>
         </div>

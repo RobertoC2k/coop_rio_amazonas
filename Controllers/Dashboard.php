@@ -24,18 +24,18 @@ class Dashboard extends Controller
         }
     }
     
-    public function rentas()
+    public function ingresosMes()
     {
         $desde = date('Y') . '-01-01 00:00:00';
         $hasta = date('Y') . '-12-31 23:59:59';
-        $data['renta'] = $this->model->rentas($desde, $hasta);
+        $data['ingresos'] = $this->model->ingresosMes($desde, $hasta);
         echo json_encode($data);
         die();
     }
 
-    public function rentasSemana()
+    public function ingresosSemana()
     {
-        $data = $this->model->rentasSemana();
+        $data = $this->model->ingresosSemana();
         echo json_encode($data);
         die();
     }

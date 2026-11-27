@@ -44,7 +44,7 @@ class Vehiculos extends Controller
         $kilometraje = strClean($_POST['kilometraje']);
         $transmision = strClean($_POST['transmision']);
         $asientos = strClean($_POST['asientos']);
-        $equipaje = strClean($_POST['equipaje']);
+        $peso_carga_max = strClean($_POST['peso_carga_max']);
         $combustible = strClean($_POST['combustible']);
         $id = strClean($_POST['id']);
         $img = $_FILES['imagen'];
@@ -55,7 +55,7 @@ class Vehiculos extends Controller
         if (
             empty($placa) || empty($marca) || empty($tipo) || empty($modelo)
             || empty($precio_dia) || empty($precio_hora) || empty($precio_mes) || empty($kilometraje)
-            || empty($transmision) || empty($asientos) || empty($equipaje) || empty($combustible)
+            || empty($transmision) || empty($asientos) || empty($peso_carga_max) || empty($combustible)
         ) {
             $msg = array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
         } else {
@@ -80,7 +80,7 @@ class Vehiculos extends Controller
             }
             if ($id == "") {
                 $data = $this->model->registrarVehiculo($placa, $precio_hora, $precio_dia, $precio_mes,
-                $modelo, $kilometraje, $transmision, $asientos, $equipaje, $combustible, $imgNombre, $tipo, $marca);
+                $modelo, $kilometraje, $transmision, $asientos, $peso_carga_max, $combustible, $imgNombre, $tipo, $marca);
                 if ($data == "ok") {
                     if (!empty($name)) {
                         move_uploaded_file($tmpname, $destino);
@@ -99,7 +99,7 @@ class Vehiculos extends Controller
                     }
                 }
                 $data = $this->model->modificarVehiculo($placa, $precio_hora, $precio_dia, $precio_mes,
-                $modelo, $kilometraje, $transmision, $asientos, $equipaje, $combustible, $imgNombre, $tipo, $marca, $id);
+                $modelo, $kilometraje, $transmision, $asientos, $peso_carga_max, $combustible, $imgNombre, $tipo, $marca, $id);
                 if ($data == "modificado") {
                     if (!empty($name)) {
                         move_uploaded_file($tmpname, $destino);

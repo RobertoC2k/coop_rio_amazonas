@@ -35,15 +35,15 @@ class ReservasModel extends Query
     {
         $sql = "SELECT * FROM reservas
         WHERE id_vehiculo = $id_veh
-        AND f_recogida <= '$desde'
-        AND f_entrega >= '$hasta'";
+        AND f_inicio <= '$desde'
+        AND f_fin >= '$hasta'";
 
         return $this->select($sql);
     }
 
     public function registrarReserva($fecha, $fecha_devolucion, $cantidad, $tipo, $monto, $fecha_reserva, $observacion, $id_veh, $id_cli)
     {
-        $sql = "INSERT INTO reservas(f_recogida, f_entrega, cantidad, tipo_precio, monto, f_reserva, observacion, id_vehiculo, id_cliente) VALUES (?,?,?,?,?,?,?,?,?)";
+        $sql = "INSERT INTO reservas(f_inicio, f_fin, cantidad, tipo_precio, monto, f_reserva, observacion, id_vehiculo, id_cliente) VALUES (?,?,?,?,?,?,?,?,?)";
         $datos = array($fecha, $fecha_devolucion, $cantidad, $tipo, $monto, $fecha_reserva, $observacion, $id_veh, $id_cli);
         $data = $this->insertar($sql, $datos);
         if ($data > 0) {

@@ -1,20 +1,19 @@
 <?php cargarHeader($_SESSION['tipo']); ?>
 
-<button class="btn btn-outline-primary mb-2" type="button" onclick="frmAlquiler();"><i class="fas fa-plus"></i></button>
+<button class="btn btn-outline-primary mb-2" type="button" onclick="frmServicio();"><i class="fas fa-plus"></i></button>
 <div class="card">
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered table-hover display responsive nowrap" id="tblAlquiler" style="width: 100%;">
+            <table class="table table-bordered table-hover display responsive nowrap" id="tblServicios" style="width: 100%;">
                 <thead>
                     <tr>
                         <th>Id</th>
-                        <th>Doc Garantia</th>
                         <th>Cliente</th>
                         <th>Vehículo</th>
                         <th>Placa</th>
-                        <th>Módelo</th>
-                        <th>F. Prestamo</th>
-                        <th>F. Devolción</th>
+                        <th>Modelo</th>
+                        <th>F. Inicio</th>
+                        <th>F. Fin</th>
                         <th>Cant.</th>
                         <th>Monto</th>
                         <th>Abono</th>
@@ -34,13 +33,13 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-info">
-                <h5 class="modal-title" id="title">Nuevo Alquiler</h5>
+                <h5 class="modal-title" id="title">Nuevo Servicio</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formulario" onsubmit="registrarAlquiler(event)" autocomplete="off">
+            <form id="formulario" onsubmit="registrarServicio(event)" autocomplete="off">
                 <div class="modal-body">
                     <?php foreach ($data['vehiculos'] as $row) { ?>
-                        <span class="badge bg-success"> <i class="fas fa-taxi"></i> <?php echo $row['placa'] . ' - ' . $row['tipo'] . ' - ' . $row['marca'] ?></span>
+                        <span class="badge bg-success"> <i class="fas fa-truck"></i> <?php echo $row['placa'] . ' - ' . $row['tipo'] . ' - ' . $row['marca'] ?></span>
                     <?php } ?>
                     <div class="card my-2">
 
@@ -105,26 +104,16 @@
                                         <label for="precio_mes">Precio x Mes <span class="text-danger fw-bold">*</span></label>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="form-floating mb-3">
                                         <input id="abono" class="form-control" type="text" name="abono" placeholder="Abono" required>
                                         <label for="abono">Abono <span class="text-danger fw-bold">*</span></label>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="form-floating mb-3">
                                         <input id="fecha" class="form-control" type="datetime-local" name="fecha" value="<?php echo date('Y-m-d'); ?>" required>
-                                        <label for="fecha">Fecha/Hora <span class="text-danger fw-bold">*</span></label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-floating mb-3">
-                                        <select name="documento" id="documento" class="form-control" required>
-                                            <?php foreach ($data['documentos'] as $doc) { ?>
-                                                <option value="<?php echo $doc['id']; ?>"><?php echo $doc['documento']; ?></option>
-                                            <?php } ?>
-                                        </select>
-                                        <label for="documento">Doc Garantia <span class="text-danger fw-bold">*</span></label>
+                                        <label for="fecha">Fecha/Hora de inicio <span class="text-danger fw-bold">*</span></label>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -138,25 +127,25 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-outline-primary" id="btnAccion">Alquilar</button>
+                    <button type="submit" class="btn btn-outline-primary" id="btnAccion">Registrar</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="entrega" tabindex="-1" aria-labelledby="Label" aria-hidden="true">
+<div class="modal fade" id="modalFinalizar" tabindex="-1" aria-labelledby="Label" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-info">
-                <h5 class="modal-title" id="Label">Entrega del Vehículo</h5>
+                <h5 class="modal-title" id="Label">Finalizar Servicio</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="procesarEntrega" onsubmit="procesarEntrega(event)">
+            <form id="frmFinalizar" onsubmit="finalizarServicio(event)">
                 <div class="modal-body">
                     <div class="form-floating mb-3">
-                        <input type="hidden" id="id_alquiler">
-                        <input id="pendiente" class="form-control" type="text" placeholder="Monto a Pendiente" disabled>
+                        <input type="hidden" id="id_servicio">
+                        <input id="pendiente" class="form-control" type="text" placeholder="Monto Abonado" disabled>
                         <label for="pendiente">Monto Abonado</label>
                     </div>
                     <div class="form-floating mb-3">
@@ -166,7 +155,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Procesar</button>
+                    <button type="submit" class="btn btn-primary">Finalizar</button>
                 </div>
             </form>
         </div>
@@ -175,7 +164,7 @@
 
 <?php cargarFooter($_SESSION['tipo']); ?>
 
-<script src="<?php echo base_url . 'Assets/js/pages/alquiler.js'; ?>"></script>
+<script src="<?php echo base_url . 'Assets/js/pages/servicios.js'; ?>"></script>
 
 </body>
 
