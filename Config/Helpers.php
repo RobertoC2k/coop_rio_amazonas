@@ -112,6 +112,28 @@ function validarImagen($archivo, array $permitidas)
     return array('error' => null, 'extension' => $tipos[$info[2]]);
 }
 
+// Protección CSRF (falsificación de peticiones entre sitios).
+// Riesgo: si el personal tiene la sesión abierta y visita otra página, esa página podría
+// hacer que su navegador llame, por ejemplo, a vehiculos/eliminar/5 sin que lo note.
+// Solución: cada sesión recibe un código secreto aleatorio (token). La cabecera del panel
+// lo pone en <meta name="csrf-token">, funciones.js lo envía en cada petición
+// (cabecera X-CSRF-Token) e index.php lo exige antes de cualquier acción que cambie datos.
+// Otra página no puede leer ese código ni agregar esa cabecera.
+function tokenCsrf()
+{
+    if (empty($_SESSION['csrf'])) {
+        $_SESSION['csrf'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf'];
+}
+
+function csrfValido()
+{
+    $enviado = isset($_SERVER['HTTP_X_CSRF_TOKEN']) ? $_SERVER['HTTP_X_CSRF_TOKEN'] : '';
+    // hash_equals compara sin revelar por el tiempo de respuesta cuántos caracteres coinciden
+    return !empty($_SESSION['csrf']) && is_string($enviado) && hash_equals($_SESSION['csrf'], $enviado);
+}
+
 // Plantillas del panel interno. Cada vista llama a cargarHeader() en su primera línea
 // y a cargarFooter() al final. Según el rol de la sesión se usa:
 //   tipo 1 (personal) -> Templates/header.php y footer.php (menú de administración)

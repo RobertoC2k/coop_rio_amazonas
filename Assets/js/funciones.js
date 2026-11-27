@@ -1,3 +1,43 @@
+/*
+ * Protección CSRF: agrega el token de la sesión a TODAS las peticiones del sistema.
+ * El token viene en <meta name="csrf-token"> (Templates/header.php y header-cliente.php)
+ * y el servidor lo exige en index.php. Al hacerlo aquí, una sola vez, no hace falta
+ * modificar cada archivo JS de los módulos (clientes.js, vehiculos.js, verify.js...).
+ */
+(function () {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    if (!meta) {
+        return;
+    }
+    const token = meta.content;
+    const abrirOriginal = XMLHttpRequest.prototype.open;
+    const enviarOriginal = XMLHttpRequest.prototype.send;
+
+    XMLHttpRequest.prototype.open = function (metodo, url) {
+        // Solo a nuestro propio sistema: el token no debe enviarse a otros sitios
+        const destino = String(url);
+        this._esDelSistema = destino.indexOf(base_url) === 0 || !/^https?:\/\//i.test(destino);
+        return abrirOriginal.apply(this, arguments);
+    };
+
+    XMLHttpRequest.prototype.send = function () {
+        if (this._esDelSistema) {
+            this.setRequestHeader('X-CSRF-Token', token);
+            // Si el servidor rechaza la petición (403), mostrar su mensaje
+            this.addEventListener('load', function () {
+                if (this.status === 403 && typeof alertify !== 'undefined') {
+                    try {
+                        alertify.error(JSON.parse(this.responseText).msg);
+                    } catch (e) {
+                        alertify.error('Petición no válida. Recarga la página');
+                    }
+                }
+            });
+        }
+        return enviarOriginal.apply(this, arguments);
+    };
+})();
+
 let tblUsuarios, tblClientes, tblMarcas, tblTipos, tblAlquiler,
 tblVehiculos, myModal, tblDoc;
 const buttons = [{

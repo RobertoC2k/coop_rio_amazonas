@@ -46,6 +46,19 @@ if ($nombreValido && file_exists($dirControllers)) {
     $objeto = new $controller();     // el constructor valida sesión/rol y carga el modelo
     // Solo se pueden llamar desde la URL los métodos públicos y que no sean internos de PHP (__construct, etc.)
     if (is_callable(array($objeto, $metodo)) && strpos($metodo, '__') !== 0) {
+        // Protección CSRF (ver tokenCsrf en Config/Helpers.php). Se exige el token en:
+        //  - todo envío POST (registrar, modificar, cambiar clave, solicitar, rechazar...)
+        //  - las acciones por GET que cambian datos (dar de baja, finalizar, aprobar)
+        // Quedan fuera las páginas públicas sin sesión: login, registro web y contacto.
+        $accionesGet = array('eliminar', 'finalizar', 'aprobar');
+        $publicos    = array('Login', 'Major', 'Contact');
+        $cambiaDatos = $_SERVER['REQUEST_METHOD'] === 'POST' || in_array($metodo, $accionesGet);
+        if ($cambiaDatos && !in_array($controller, $publicos) && !csrfValido()) {
+            http_response_code(403);
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(array('msg' => 'Petición no válida o sesión expirada. Recarga la página', 'icono' => 'error'), JSON_UNESCAPED_UNICODE);
+            exit;
+        }
         try {
             $objeto->$metodo($parametro);
         } catch (TypeError $e) {
