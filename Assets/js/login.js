@@ -16,7 +16,8 @@ function frmLogin(e) {
                 if (res.icono == "success") {
                     alertify.success(res.msg);
                     setTimeout(() => {
-                        window.location = base_url + "dashboard";
+                        // replace(): el login no queda en el historial del botón "atrás"
+                        window.location.replace(base_url + "dashboard");
                     }, 1500);                    
                 } else {
                     alertify.error(res.msg);

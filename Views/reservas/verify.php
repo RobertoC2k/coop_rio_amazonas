@@ -22,8 +22,8 @@
                 } ?>
                 <ul class="list-group mb-3">
                     <li class="list-group-item"><b>Cliente:</b> <?php echo $data['reserva']['nombre']; ?></li>
-                    <li class="list-group-item"><b>Fecha Recogida:</b> <?php echo $data['reserva']['f_recogida']; ?></li>
-                    <li class="list-group-item"><b>Fecha Entrega:</b> <?php echo $data['reserva']['f_entrega']; ?></li>
+                    <li class="list-group-item"><b>Fecha de inicio:</b> <?php echo $data['reserva']['f_inicio']; ?></li>
+                    <li class="list-group-item"><b>Fecha de fin:</b> <?php echo $data['reserva']['f_fin']; ?></li>
                     <li class="list-group-item"><b>Observaciones:</b> <?php echo $data['reserva']['observacion']; ?></li>
                     <li class="list-group-item"><b><?php echo $tipo; ?></b><?php echo $data['reserva']['monto']; ?></li>
                     <li class="list-group-item"><b>Total:</b> <?php echo number_format($data['reserva']['monto'] * $data['reserva']['cantidad'], 2); ?></li>

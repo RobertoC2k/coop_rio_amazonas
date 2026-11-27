@@ -68,8 +68,8 @@
                             <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-backpack"></span></div>
                             <div class="text">
                                 <h3 class="heading mb-0 pl-3">
-                                    Equipaje
-                                    <span><?php echo $data['vehiculo']['equipaje']; ?></span>
+                                    Peso de carga máx.
+                                    <span><?php echo $data['vehiculo']['peso_carga_max']; ?></span>
                                 </h3>
                             </div>
                         </div>

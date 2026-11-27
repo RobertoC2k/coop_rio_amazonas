@@ -18,28 +18,27 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `alquiler`
+-- Base de datos: `coop_rio_amazonas`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `alquiler`
+-- Estructura de tabla para la tabla `servicios`
 --
 
-CREATE TABLE `alquiler` (
+CREATE TABLE `servicios` (
   `id` int(11) NOT NULL,
   `cantidad` int(11) NOT NULL,
   `tipo_precio` int(11) NOT NULL DEFAULT 0,
   `monto` decimal(10,2) NOT NULL,
   `abono` decimal(10,2) NOT NULL,
-  `fecha_prestamo` datetime NOT NULL,
-  `fecha_devolucion` datetime NOT NULL,
+  `fecha_inicio` datetime NOT NULL,
+  `fecha_fin` datetime NOT NULL,
   `observacion` text DEFAULT NULL,
   `estado` int(11) NOT NULL DEFAULT 1,
   `id_cliente` int(11) NOT NULL,
-  `id_vehiculo` int(11) NOT NULL,
-  `id_doc` int(11) NOT NULL
+  `id_vehiculo` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -88,19 +87,6 @@ INSERT INTO `configuracion` (`id`, `ruc`, `nombre`, `telefono`, `correo`, `direc
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `documentos`
---
-
-CREATE TABLE `documentos` (
-  `id` int(11) NOT NULL,
-  `documento` varchar(20) NOT NULL,
-  `estado` int(11) NOT NULL DEFAULT 1,
-  `fecha` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `marcas`
 --
 
@@ -133,8 +119,8 @@ INSERT INTO `marcas` (`id`, `marca`, `estado`, `fecha`) VALUES
 
 CREATE TABLE `reservas` (
   `id` int(11) NOT NULL,
-  `f_recogida` datetime NOT NULL,
-  `f_entrega` datetime NOT NULL,
+  `f_inicio` datetime NOT NULL,
+  `f_fin` datetime NOT NULL,
   `cantidad` int(11) NOT NULL DEFAULT 0,
   `tipo_precio` int(11) NOT NULL DEFAULT 1,
   `monto` decimal(10,2) NOT NULL DEFAULT 0.00,
@@ -215,7 +201,7 @@ CREATE TABLE `vehiculos` (
   `kilometraje` varchar(50) NOT NULL,
   `transmision` varchar(50) NOT NULL,
   `asientos` int(11) NOT NULL DEFAULT 0,
-  `equipaje` varchar(50) NOT NULL,
+  `peso_carga_max` varchar(50) NOT NULL,
   `combustible` varchar(50) NOT NULL,
   `foto` varchar(50) NOT NULL,
   `estado` int(11) NOT NULL DEFAULT 1,
@@ -229,13 +215,12 @@ CREATE TABLE `vehiculos` (
 --
 
 --
--- Indices de la tabla `alquiler`
+-- Indices de la tabla `servicios`
 --
-ALTER TABLE `alquiler`
+ALTER TABLE `servicios`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_cliente` (`id_cliente`),
-  ADD KEY `id_vehiculo` (`id_vehiculo`),
-  ADD KEY `id_doc` (`id_doc`);
+  ADD KEY `id_vehiculo` (`id_vehiculo`);
 
 --
 -- Indices de la tabla `clientes`
@@ -247,12 +232,6 @@ ALTER TABLE `clientes`
 -- Indices de la tabla `configuracion`
 --
 ALTER TABLE `configuracion`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indices de la tabla `documentos`
---
-ALTER TABLE `documentos`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -294,9 +273,9 @@ ALTER TABLE `vehiculos`
 --
 
 --
--- AUTO_INCREMENT de la tabla `alquiler`
+-- AUTO_INCREMENT de la tabla `servicios`
 --
-ALTER TABLE `alquiler`
+ALTER TABLE `servicios`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -310,12 +289,6 @@ ALTER TABLE `clientes`
 --
 ALTER TABLE `configuracion`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de la tabla `documentos`
---
-ALTER TABLE `documentos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `marcas`
@@ -352,12 +325,11 @@ ALTER TABLE `vehiculos`
 --
 
 --
--- Filtros para la tabla `alquiler`
+-- Filtros para la tabla `servicios`
 --
-ALTER TABLE `alquiler`
-  ADD CONSTRAINT `alquiler_ibfk_1` FOREIGN KEY (`id_vehiculo`) REFERENCES `vehiculos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `alquiler_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `alquiler_ibfk_3` FOREIGN KEY (`id_doc`) REFERENCES `documentos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `servicios`
+  ADD CONSTRAINT `servicios_ibfk_1` FOREIGN KEY (`id_vehiculo`) REFERENCES `vehiculos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `servicios_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `reservas`

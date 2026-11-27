@@ -8,7 +8,7 @@ $(function () {
   if ($("#barChart").length) {
     var barChartCanvas = $("#barChart").get(0).getContext("2d");
 
-    const url = base_url + 'dashboard/rentas';
+    const url = base_url + 'dashboard/ingresosMes';
     const http = new XMLHttpRequest();
     http.open("GET", url, true);
     http.send();
@@ -21,10 +21,10 @@ $(function () {
             labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
             datasets: [{
               label: 'Total',
-              data: [res.renta.ene, res.renta.feb, res.renta.mar,
-              res.renta.abr, res.renta.may, res.renta.jun,
-              res.renta.jul, res.renta.ago, res.renta.sep,
-              res.renta.oct, res.renta.nov, res.renta.dic],
+              data: [res.ingresos.ene, res.ingresos.feb, res.ingresos.mar,
+              res.ingresos.abr, res.ingresos.may, res.ingresos.jun,
+              res.ingresos.jul, res.ingresos.ago, res.ingresos.sep,
+              res.ingresos.oct, res.ingresos.nov, res.ingresos.dic],
               backgroundColor: [
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(54, 162, 235, 0.2)',
@@ -84,7 +84,7 @@ $(function () {
   if ($("#pieChart").length) {   
 
     const httppie = new XMLHttpRequest();
-    const url = base_url + 'dashboard/rentasSemana';
+    const url = base_url + 'dashboard/ingresosSemana';
         httppie.open('GET', url, true);
 
         httppie.onreadystatechange = function () {

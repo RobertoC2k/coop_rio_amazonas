@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
         "createdRow": function (row, data, index) {
             //pintar una celda
             if (data.estado == 2) {
-                $('td', row).eq(6).html('<span class="badge bg-dark">Alquilado</span>');
+                $('td', row).eq(6).html('<span class="badge bg-dark">En servicio</span>');
             } else {
                 $('td', row).eq(6).html('<span class="badge bg-success">Activo</span>');
             }
@@ -55,7 +55,7 @@ function registrarVeh(e) {
     if (frm.placa.value == '' || frm.marca.value == '' || frm.tipo.value == '' || frm.modelo.value == ''
         || frm.precio_hora.value == '' || frm.precio_dia.value == '' || frm.precio_mes.value == ''
         || frm.kilometraje.value == '' || frm.transmision.value == '' || frm.asientos.value == ''
-        || frm.equipaje.value == '' || frm.combustible.value == '') {
+        || frm.peso_carga_max.value == '' || frm.combustible.value == '') {
             alertify.error("Todo los campos son requeridos");
     } else {
         const url = base_url + 'vehiculos/registrar';
@@ -105,7 +105,7 @@ function btnEditarVeh(id) {
             frm.kilometraje.value = res.kilometraje;
             frm.transmision.value = res.transmision;
             frm.asientos.value = res.asientos;
-            frm.equipaje.value = res.equipaje;
+            frm.peso_carga_max.value = res.peso_carga_max;
             frm.combustible.value = res.combustible;
             document.getElementById("img-preview").src = base_url + 'Assets/img/vehiculos/' + res.foto;
             document.getElementById("icon-cerrar").innerHTML = `

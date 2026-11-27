@@ -23,15 +23,15 @@ class VehiculosModel extends Query{
         return $data;
     }
     public function registrarVehiculo($placa, $precio_hora, $precio_dia, $precio_mes,
-    $modelo, $kilometraje, $transmision, $asientos, $equipaje, $combustible, $imgNombre, $tipo, $marca)
+    $modelo, $kilometraje, $transmision, $asientos, $peso_carga_max, $combustible, $imgNombre, $tipo, $marca)
     {
         $vericar = "SELECT * FROM vehiculos WHERE placa = '$placa'";
         $existe = $this->select($vericar);
         if (empty($existe)) {
             $sql = "INSERT INTO vehiculos(placa, precio_hora, precio_dia, precio_mes,
-            modelo, kilometraje, transmision, asientos, equipaje, combustible, foto, id_tipo, id_marca) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            modelo, kilometraje, transmision, asientos, peso_carga_max, combustible, foto, id_tipo, id_marca) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
             $datos = array($placa, $precio_hora, $precio_dia, $precio_mes,
-            $modelo, $kilometraje, $transmision, $asientos, $equipaje, $combustible, $imgNombre, $tipo, $marca);
+            $modelo, $kilometraje, $transmision, $asientos, $peso_carga_max, $combustible, $imgNombre, $tipo, $marca);
             $data = $this->save($sql, $datos);
             if ($data == 1) {
                 $res = "ok";
@@ -44,12 +44,12 @@ class VehiculosModel extends Query{
         return $res;
     }
     public function modificarVehiculo($placa, $precio_hora, $precio_dia, $precio_mes,
-    $modelo, $kilometraje, $transmision, $asientos, $equipaje, $combustible, $imgNombre, $tipo, $marca, $id)
+    $modelo, $kilometraje, $transmision, $asientos, $peso_carga_max, $combustible, $imgNombre, $tipo, $marca, $id)
     {
         $sql = "UPDATE vehiculos SET placa=?, precio_hora=?, precio_dia=?, precio_mes=?,
-        modelo=?, kilometraje=?, transmision=?, asientos=?, equipaje=?, combustible=?, foto=?, id_tipo=?, id_marca=? WHERE id = ?";
+        modelo=?, kilometraje=?, transmision=?, asientos=?, peso_carga_max=?, combustible=?, foto=?, id_tipo=?, id_marca=? WHERE id = ?";
         $datos = array($placa, $precio_hora, $precio_dia, $precio_mes,
-        $modelo, $kilometraje, $transmision, $asientos, $equipaje, $combustible, $imgNombre, $tipo, $marca, $id);
+        $modelo, $kilometraje, $transmision, $asientos, $peso_carga_max, $combustible, $imgNombre, $tipo, $marca, $id);
         $data = $this->save($sql, $datos);
         if ($data == 1) {
             $res = "modificado";

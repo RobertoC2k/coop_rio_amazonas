@@ -127,9 +127,9 @@
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="form-floating mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Equipaje">
-                                <input id="equipaje" class="form-control" type="text" name="equipaje" placeholder="Equipaje">
-                                <label for="equipaje">Equipaje <span class="text-danger fw-bold">*</span></label>
+                            <div class="form-floating mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Peso de carga máximo (ej: 10 toneladas)">
+                                <input id="peso_carga_max" class="form-control" type="text" name="peso_carga_max" placeholder="Peso de carga máximo">
+                                <label for="peso_carga_max">Peso de carga máx. <span class="text-danger fw-bold">*</span></label>
                             </div>
                         </div>
                         <div class="col-md-3">

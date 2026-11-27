@@ -5,19 +5,20 @@ class Query extends Conexion{
         $this->pdo = new Conexion();
         $this->con = $this->pdo->conect();
     }
-    public function select(string $sql)
+    // $params es opcional: si la consulta usa "?", aquí van los valores en orden.
+    public function select(string $sql, array $params = [])
     {
         $this->sql = $sql;
         $resul = $this->con->prepare($this->sql);
-        $resul->execute();
+        $resul->execute($params);
         $data = $resul->fetch(PDO::FETCH_ASSOC);
         return $data;
     }
-    public function selectAll(string $sql)
+    public function selectAll(string $sql, array $params = [])
     {
         $this->sql = $sql;
         $resul = $this->con->prepare($this->sql);
-        $resul->execute();
+        $resul->execute($params);
         $data = $resul->fetchAll(PDO::FETCH_ASSOC);
         return $data;
     }

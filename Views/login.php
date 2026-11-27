@@ -37,13 +37,6 @@
                                 <div class="form-group">
                                     <input type="password" class="form-control form-control-lg" id="clave" name="clave" placeholder="Contraseña">
                                 </div>
-                                <div class="form-group">
-                                    <select id="rol" class="form-control" name="rol">
-                                        <option value="">Seleccionar</option>
-                                        <option value="1">Administrador</option>
-                                        <option value="2">Cliente</option>
-                                    </select>
-                                </div>
                                 <div class="mt-3">
                                     <button class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" id="btnAccion" type="submit">Login</button>
                                 </div>                                
