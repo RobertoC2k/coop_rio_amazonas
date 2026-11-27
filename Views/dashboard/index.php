@@ -1,4 +1,4 @@
-<?php cargarHeader($_SESSION['tipo']); ?>
+<?php cargarHeader($_SESSION['tipo'], $notificaciones); ?>
 
 <div class="col-md-12">
     <div class="card">

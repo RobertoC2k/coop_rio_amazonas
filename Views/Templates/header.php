@@ -1,3 +1,9 @@
+<?php
+/**
+ * Este archivo lo incluye cargarHeader() (Config/Helpers.php), que le entrega la variable.
+ * @var array $notificaciones Reservas pendientes para la campana (vienen del controlador).
+ */
+?>
 <!DOCTYPE html>
 <html lang="en">
 

@@ -36,7 +36,9 @@ function strClean($cadena)
 //   tipo 2 (cliente)  -> Templates/header-cliente.php y footer-cliente.php
 // Las páginas públicas (Views/index.php, about.php, cars.php...) incluyen directamente
 // Templates/header1.php, portada.php y footer1.php.
-function cargarHeader($tipo) {
+// $notificaciones se recibe como parámetro porque un include dentro de una función solo
+// ve las variables de esa función: sin él, header.php no encontraba la variable.
+function cargarHeader($tipo, $notificaciones = array()) {
     if ($tipo == 1) {
         include "Views/Templates/header.php";
     }else{

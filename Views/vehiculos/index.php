@@ -1,4 +1,4 @@
-<?php cargarHeader($_SESSION['tipo']); ?>
+<?php cargarHeader($_SESSION['tipo'], $notificaciones); ?>
 
 <button class="btn btn-outline-primary mb-2" type="button" onclick="frmVehiculo();"><i class="fas fa-plus"></i></button>
 

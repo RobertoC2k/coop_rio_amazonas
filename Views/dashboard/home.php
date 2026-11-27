@@ -1,4 +1,4 @@
-<?php cargarHeader($_SESSION['tipo']); ?>
+<?php cargarHeader($_SESSION['tipo'], $notificaciones); ?>
 
 <div class="row mb-3">
     <div class="col-sm-6">
