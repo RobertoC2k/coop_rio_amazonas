@@ -36,9 +36,10 @@ class ReservasModel extends Query
             return array('msg' => 'Indica la dirección o punto del trabajo', 'icono' => 'warning');
         }
 
-        // 2. Cantidad positiva y tarifa válida (1 = hora, 2 = día, 3 = mes)
-        if (!is_numeric($d['cantidad']) || $d['cantidad'] <= 0 || !in_array($d['precios'], array('1', '2', '3'))) {
-            return array('msg' => 'Cantidad o tipo de tarifa no válidos', 'icono' => 'warning');
+        // 2. Cantidad entera dentro del máximo y tarifa válida (1 = hora, 2 = día, 3 = mes)
+        $error = $this->validarCantidad($d['cantidad'], $d['precios']);
+        if ($error != null) {
+            return array('msg' => $error, 'icono' => 'warning');
         }
 
         // 3. No se puede reservar en una fecha que ya pasó
@@ -71,6 +72,30 @@ class ReservasModel extends Query
             return array('msg' => 'Reserva solicitada', 'icono' => 'success', 'id_reserva' => $id);
         }
         return array('msg' => 'Error al solicitar reserva', 'icono' => 'error');
+    }
+
+    /**
+     * La cantidad debe ser un número ENTERO mayor que cero (la columna cantidad es INT)
+     * y no pasar de un máximo según la tarifa. Con decimales (1.5) la fecha de fin
+     * salía mal, y un número enorme provocaba un error fatal.
+     * Devuelve el mensaje de error, o null si la cantidad es válida.
+     */
+    public function validarCantidad($cantidad, $tipoPrecio)
+    {
+        // Máximos: 720 horas (30 días), 365 días (1 año), 12 meses (1 año)
+        $maximos = array('1' => 720, '2' => 365, '3' => 12);
+        $tipoPrecio = (string) $tipoPrecio;
+        if (!isset($maximos[$tipoPrecio])) {
+            return 'Tipo de tarifa no válido';
+        }
+        // ctype_digit: solo dígitos 0-9, sin punto, coma, signo ni letras
+        if (!ctype_digit((string) $cantidad) || (int) $cantidad < 1) {
+            return 'La cantidad debe ser un número entero mayor que cero';
+        }
+        if ((int) $cantidad > $maximos[$tipoPrecio]) {
+            return 'La cantidad máxima para esta tarifa es ' . $maximos[$tipoPrecio];
+        }
+        return null;
     }
 
     /**

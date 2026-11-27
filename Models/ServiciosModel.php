@@ -23,30 +23,57 @@ class ServiciosModel extends Query
      */
     public function registrar(array $d)
     {
-        // 1. Campos obligatorios
+        // 1. Campos obligatorios. El abono se revisa aparte: empty("0") es verdadero en PHP,
+        //    y un abono de 0 (el cliente aún no paga nada) sí es válido.
         if (
             empty($d['id_cli']) || empty($d['id_veh']) || empty($d['select_cliente']) || empty($d['select_vehiculo'])
-            || empty($d['cantidad']) || empty($d['precios']) || empty($d['abono']) || empty($d['fecha'])
+            || empty($d['cantidad']) || empty($d['precios']) || trim($d['abono']) === '' || empty($d['fecha'])
         ) {
             return array('msg' => 'Todo los campos con * son requeridos', 'icono' => 'warning');
         }
 
-        // 2. El vehículo debe existir
+        // 2. Cantidad entera dentro del máximo y tarifa válida (1 = hora, 2 = día, 3 = mes)
+        $error = $this->validarCantidad($d['cantidad'], $d['precios']);
+        if ($error != null) {
+            return array('msg' => $error, 'icono' => 'warning');
+        }
+
+        // 3. La fecha de inicio debe ser válida y no anterior a hoy
+        //    (se permite hoy porque el personal registra servicios que empiezan en el día)
+        if (strtotime($d['fecha']) === false || strtotime($d['fecha']) < strtotime('today')) {
+            return array('msg' => 'La fecha de inicio no puede ser anterior a hoy', 'icono' => 'warning');
+        }
+
+        // 4. El cliente y el vehículo deben existir y estar activos
+        if (empty($this->getClienteActivo($d['id_cli']))) {
+            return array('msg' => 'El cliente no existe o está dado de baja', 'icono' => 'error');
+        }
         $vehiculo = $this->getVehiculo($d['id_veh']);
-        if (empty($vehiculo)) {
+        if (empty($vehiculo) || $vehiculo['estado'] == 0) {
             return array('msg' => 'El vehículo no existe', 'icono' => 'error');
         }
 
-        // 3. Calcular precio unitario y fecha de fin según la tarifa elegida
+        // 5. Calcular precio unitario y fecha de fin según la tarifa elegida
         $tarifa = $this->calcularTarifa($vehiculo, $d['precios'], $d['cantidad'], $d['fecha']);
 
-        // 4. El vehículo no debe estar ocupado en esas fechas
+        // 6. El abono es un número de 0 en adelante (hasta 2 decimales) y no supera el total
+        $abono = str_replace(',', '.', trim($d['abono']));   // acepta 10,50 o 10.50
+        if (!preg_match('/^\d+(\.\d{1,2})?$/', $abono)) {
+            return array('msg' => 'El abono debe ser un número (ejemplo: 50 o 50.25)', 'icono' => 'warning');
+        }
+        $total = (int) $d['cantidad'] * $tarifa['monto'];
+        if ((float) $abono > $total) {
+            return array('msg' => 'El abono no puede ser mayor al total del servicio ($' . number_format($total, 2) . ')', 'icono' => 'warning');
+        }
+        $d['abono'] = $abono;
+
+        // 7. El vehículo no debe estar ocupado en esas fechas
         $ocupado = $this->buscarCruceDeFechas($tarifa['inicio'], $tarifa['fin'], $d['id_veh'], $d['id_cli']);
         if (!empty($ocupado)) {
             return array('msg' => 'El vehículo está ocupado: ' . $ocupado['desde'] . ' hasta ' . $ocupado['hasta'], 'icono' => 'error');
         }
 
-        // 5. Guardar
+        // 8. Guardar
         $id = $this->registrarServicio(
             $d['cantidad'], $d['precios'], $tarifa['monto'], $d['abono'], $tarifa['inicio'], $tarifa['fin'],
             $d['observacion'], $d['id_cli'], $d['id_veh']
@@ -55,6 +82,27 @@ class ServiciosModel extends Query
             return array('msg' => 'Servicio registrado con éxito', 'icono' => 'success', 'id_servicio' => $id);
         }
         return array('msg' => 'Error al registrar el servicio', 'icono' => 'error');
+    }
+
+    /**
+     * Misma regla que en ReservasModel: cantidad ENTERA mayor que cero y con un máximo
+     * según la tarifa. Devuelve el mensaje de error, o null si la cantidad es válida.
+     */
+    public function validarCantidad($cantidad, $tipoPrecio)
+    {
+        // Máximos: 720 horas (30 días), 365 días (1 año), 12 meses (1 año)
+        $maximos = array('1' => 720, '2' => 365, '3' => 12);
+        $tipoPrecio = (string) $tipoPrecio;
+        if (!isset($maximos[$tipoPrecio])) {
+            return 'Tipo de tarifa no válido';
+        }
+        if (!ctype_digit((string) $cantidad) || (int) $cantidad < 1) {
+            return 'La cantidad debe ser un número entero mayor que cero';
+        }
+        if ((int) $cantidad > $maximos[$tipoPrecio]) {
+            return 'La cantidad máxima para esta tarifa es ' . $maximos[$tipoPrecio];
+        }
+        return null;
     }
 
     /**
@@ -151,6 +199,11 @@ class ServiciosModel extends Query
     {
         $sql = "SELECT v.id, v.placa, v.id_tipo, v.id_marca, v.estado, t.id, t.tipo, m.id, m.marca FROM vehiculos v INNER JOIN tipos t ON t.id = v.id_tipo INNER JOIN marcas m ON m.id = v.id_marca WHERE v.estado = 1";
         return $this->selectAll($sql);
+    }
+    public function getClienteActivo($id)
+    {
+        $sql = "SELECT id FROM clientes WHERE id = ? AND estado = 1";
+        return $this->select($sql, array($id));
     }
     public function getVehiculo($id)
     {
