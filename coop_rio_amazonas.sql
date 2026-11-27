@@ -344,6 +344,18 @@ ALTER TABLE `reservas`
 ALTER TABLE `vehiculos`
   ADD CONSTRAINT `vehiculos_ibfk_1` FOREIGN KEY (`id_tipo`) REFERENCES `tipos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `vehiculos_ibfk_2` FOREIGN KEY (`id_marca`) REFERENCES `marcas` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- --------------------------------------------------------
+-- Mejoras posteriores (mismo contenido que sql/01)
+-- --------------------------------------------------------
+-- Migración 01: rechazo de reservas con motivo
+--
+-- Estados de reservas después de esta migración:
+--   0 = Pendiente, 1 = Aprobada, 2 = Rechazada
+
+ALTER TABLE `reservas`
+  ADD COLUMN `motivo_rechazo` VARCHAR(255) NULL DEFAULT NULL AFTER `estado`;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

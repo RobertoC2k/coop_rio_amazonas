@@ -82,14 +82,14 @@ class ServiciosModel extends Query
      * Dos periodos se cruzan si uno empieza antes de que el otro termine
      * y termina después de que el otro empiece.
      * Se revisan:
-     *  - las reservas de OTROS clientes (la del mismo cliente es la que se está concretando),
+     *  - las reservas de OTROS clientes que no fueron rechazadas (la del mismo cliente es la que se está concretando),
      *  - los servicios que siguen en curso (estado 1).
      * Devuelve el primer cruce encontrado o false si el vehículo está libre.
      */
     public function buscarCruceDeFechas($desde, $hasta, $id_veh, $id_cli)
     {
         $sql = "SELECT f_inicio AS desde, f_fin AS hasta FROM reservas
-                WHERE id_vehiculo = ? AND id_cliente != ?
+                WHERE id_vehiculo = ? AND id_cliente != ? AND estado != 2
                 AND f_inicio < ? AND f_fin > ?";
         $reserva = $this->select($sql, array($id_veh, $id_cli, $hasta, $desde));
         if (!empty($reserva)) {

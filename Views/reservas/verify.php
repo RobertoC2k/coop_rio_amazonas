@@ -30,13 +30,55 @@
                 </ul>
                 <?php if ($data['reserva']['estado'] == 0) { ?>
                     <div class="text-end">
+                        <button class="btn btn-danger" type="button" id="btnRechazar">Rechazar</button>
                         <button class="btn btn-primary" type="button" id="btnAprobar">Aprobar</button>
+                    </div>
+                <?php } else if ($data['reserva']['estado'] == 1) { ?>
+                    <div class="alert alert-success mb-0">Reserva <b>aprobada</b>.</div>
+                <?php } else { ?>
+                    <div class="alert alert-secondary mb-0">
+                        Reserva <b>rechazada</b>.<br>
+                        <b>Motivo:</b> <?php echo htmlspecialchars($data['reserva']['motivo_rechazo']); ?>
                     </div>
                 <?php } ?>
             </div>
 
         </div>
 
+    </div>
+</div>
+
+<!-- Ventana para indicar el motivo del rechazo -->
+<div class="modal fade" id="modalRechazo" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog" aria-labelledby="tituloRechazo" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tituloRechazo">Rechazar reserva</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="frmRechazo" autocomplete="off">
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <select class="form-control" id="motivo" name="motivo">
+                            <option value="">Seleccione...</option>
+                            <?php foreach ($data['motivos'] as $motivo) { ?>
+                                <option value="<?php echo $motivo; ?>"><?php echo $motivo; ?></option>
+                            <?php } ?>
+                        </select>
+                        <label for="motivo">Motivo <span class="text-danger fw-bold">*</span></label>
+                    </div>
+                    <div class="form-floating">
+                        <textarea class="form-control" id="detalle" name="detalle" style="height: 100px" maxlength="200" placeholder="Detalle"></textarea>
+                        <label for="detalle" id="lblDetalle">Detalle (opcional)</label>
+                    </div>
+                    <small class="text-muted">Se enviará un correo al cliente con el motivo.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger" id="btnConfirmarRechazo">Rechazar</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

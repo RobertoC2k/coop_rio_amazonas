@@ -63,8 +63,30 @@ class Reservas extends Controller
             exit;
         }
         $data['reserva'] = $this->model->getReserva($id);
+        if (empty($data['reserva'])) {
+            header("location: " . base_url . 'errors');
+            exit;
+        }
         $data['vehiculo'] = $this->model->getVehiculo($data['reserva']['id_vehiculo']);
+        $data['motivos'] = $this->model->motivosRechazo();
         $this->views->getView("reservas/verify", $data);
+    }
+
+    public function rechazar($idReserva)
+    {
+        // Permiso: solo el administrador rechaza
+        if ($_SESSION['tipo'] != 1) {
+            $msg = array('msg' => 'No tienes permisos', 'icono' => 'warning');
+        } else {
+            // El modelo valida el motivo, guarda el rechazo y avisa al cliente
+            $msg = $this->model->rechazar(
+                intval($idReserva),
+                strClean($_POST['motivo']),
+                strClean($_POST['detalle'])
+            );
+        }
+        echo json_encode($msg, JSON_UNESCAPED_UNICODE);
+        die();
     }
 
     public function aprobar($idReserva)

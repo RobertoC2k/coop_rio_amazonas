@@ -2,8 +2,8 @@
 /**
  * Modelo de Reservas (solicitud de turno).
  * Una reserva es la solicitud que hace un cliente para usar un vehículo
- * durante un periodo (f_inicio a f_fin). El administrador la aprueba.
- * Estados: 0 = Pendiente, 1 = Aprobada.
+ * durante un periodo (f_inicio a f_fin). El personal la aprueba o la rechaza indicando el motivo.
+ * Estados: 0 = Pendiente, 1 = Aprobada, 2 = Rechazada.
  */
 class ReservasModel extends Query
 {
@@ -92,13 +92,14 @@ class ReservasModel extends Query
     /**
      * Dos periodos se cruzan si uno empieza antes de que el otro termine
      * y termina después de que el otro empiece.
-     * Se revisan las reservas del vehículo y los servicios que siguen en curso.
+     * Se revisan las reservas pendientes o aprobadas del vehículo (las rechazadas
+     * liberan el horario) y los servicios que siguen en curso.
      * Devuelve el primer cruce encontrado o false si el vehículo está libre.
      */
     public function buscarCruceDeFechas($desde, $hasta, $id_veh)
     {
         $sql = "SELECT f_inicio AS desde, f_fin AS hasta FROM reservas
-                WHERE id_vehiculo = ? AND f_inicio < ? AND f_fin > ?";
+                WHERE id_vehiculo = ? AND estado != 2 AND f_inicio < ? AND f_fin > ?";
         $reserva = $this->select($sql, array($id_veh, $hasta, $desde));
         if (!empty($reserva)) {
             return $reserva;
@@ -114,22 +115,81 @@ class ReservasModel extends Query
      * Prepara las reservas para el calendario.
      * Regla de privacidad: el administrador (tipo 1) ve el nombre de todos los clientes;
      * un cliente solo ve su nombre en sus propias reservas, las demás aparecen como "RESERVADO".
-     * Color: rojo = pendiente, verde = aprobada.
+     * Las rechazadas solo las ven el personal y el cliente dueño de la reserva (en gris).
+     * Color: rojo = pendiente, verde = aprobada, gris = rechazada.
      */
     public function getEventosCalendario($id_vehiculo, $tipoUsuario, $idUsuario)
     {
-        $data = $this->getReservas($id_vehiculo);
-        for ($i = 0; $i < count($data); $i++) {
-            if ($tipoUsuario == 1 || $data[$i]['id_cliente'] == $idUsuario) {
-                $data[$i]['title'] = $data[$i]['nombre'];
-            } else {
-                $data[$i]['title'] = 'RESERVADO';
+        $eventos = array();
+        foreach ($this->getReservas($id_vehiculo) as $reserva) {
+            $esPropia = ($tipoUsuario == 1 || $reserva['id_cliente'] == $idUsuario);
+            if ($reserva['estado'] == 2 && !$esPropia) {
+                continue;   // una reserva rechazada de otro cliente no ocupa el horario
             }
-            $data[$i]['start'] = $data[$i]['f_inicio'];
-            $data[$i]['end'] = $data[$i]['f_fin'];
-            $data[$i]['color'] = ($data[$i]['estado'] == 0) ? '#dc3545' : '#198754';
+            $reserva['title'] = $esPropia ? $reserva['nombre'] : 'RESERVADO';
+            if ($reserva['estado'] == 2) {
+                $reserva['title'] = 'RECHAZADA: ' . $reserva['motivo_rechazo'];
+            }
+            $reserva['start'] = $reserva['f_inicio'];
+            $reserva['end'] = $reserva['f_fin'];
+            $colores = array(0 => '#dc3545', 1 => '#198754', 2 => '#6c757d');
+            $reserva['color'] = $colores[$reserva['estado']];
+            $eventos[] = $reserva;
         }
-        return $data;
+        return $eventos;
+    }
+
+    /**
+     * Motivos de rechazo disponibles. "Otro" obliga a escribir el detalle.
+     * La vista arma la lista desplegable con este mismo arreglo.
+     */
+    public function motivosRechazo()
+    {
+        return array('No realizó el pago', 'El cliente solicitó cancelar', 'Vehículo no disponible', 'Otro');
+    }
+
+    /**
+     * Rechaza una reserva pendiente (estado 2), guarda el motivo y avisa al cliente por correo.
+     */
+    public function rechazar($idReserva, $motivo, $detalle)
+    {
+        // 1. Solo se responde una reserva que sigue pendiente
+        $reserva = $this->getReserva($idReserva);
+        if (empty($reserva) || $reserva['estado'] != 0) {
+            return array('msg' => 'La reserva no existe o ya fue respondida', 'icono' => 'warning');
+        }
+        // 2. El motivo debe ser de la lista; "Otro" exige detalle
+        if (!in_array($motivo, $this->motivosRechazo())) {
+            return array('msg' => 'Selecciona un motivo de rechazo', 'icono' => 'warning');
+        }
+        if ($motivo == 'Otro' && strlen(trim($detalle)) < 5) {
+            return array('msg' => 'Describe el motivo del rechazo (mínimo 5 caracteres)', 'icono' => 'warning');
+        }
+        // 3. Texto final del motivo: el de la lista, más el detalle si se escribió
+        $texto = ($motivo == 'Otro') ? $detalle : $motivo;
+        if ($motivo != 'Otro' && trim($detalle) != '') {
+            $texto .= ' - ' . $detalle;
+        }
+        $texto = substr($texto, 0, 255);
+        // 4. Guardar
+        if ($this->guardarRechazo($idReserva, $texto) != 1) {
+            return array('msg' => 'Error al rechazar', 'icono' => 'error');
+        }
+        // 5. Avisar al cliente (si tiene correo)
+        if (empty($reserva['correo'])) {
+            return array('msg' => 'Reserva rechazada', 'icono' => 'success');
+        }
+        $empresa = $this->getEmpresa();
+        $cuerpo = '<p>Hola ' . htmlspecialchars($reserva['nombre']) . ',</p>'
+            . '<p>Lamentamos informarte que tu solicitud de reserva del <b>' . $reserva['f_inicio']
+            . '</b> al <b>' . $reserva['f_fin'] . '</b> fue <b>rechazada</b>.</p>'
+            . '<p><b>Motivo:</b> ' . htmlspecialchars($texto) . '</p>'
+            . '<p>Si tienes dudas, responde a este correo.</p>';
+        $enviado = Correo::enviar($reserva['correo'], $reserva['nombre'], 'Reserva rechazada', $cuerpo,
+            $empresa['nombre'], $empresa['correo'], $empresa['nombre']);
+        return $enviado
+            ? array('msg' => 'Reserva rechazada y cliente notificado', 'icono' => 'success')
+            : array('msg' => 'Reserva rechazada (no se pudo enviar el correo al cliente)', 'icono' => 'success');
     }
 
     /**
@@ -137,8 +197,10 @@ class ReservasModel extends Query
      */
     public function aprobar($idReserva)
     {
-        if (empty($idReserva)) {
-            return array('msg' => 'Reserva no válida', 'icono' => 'warning');
+        // Solo se aprueba una reserva que sigue pendiente
+        $pendiente = $this->getReserva($idReserva);
+        if (empty($pendiente) || $pendiente['estado'] != 0) {
+            return array('msg' => 'La reserva no existe o ya fue respondida', 'icono' => 'warning');
         }
         if ($this->actualizarEstado(1, $idReserva) != 1) {
             return array('msg' => 'Error al aprobar', 'icono' => 'error');
@@ -211,10 +273,18 @@ class ReservasModel extends Query
         return $this->select($sql, array($id));
     }
 
+
     public function actualizarEstado($estado, $id)
     {
         $sql = "UPDATE reservas SET estado = ? WHERE id = ?";
         return $this->save($sql, array($estado, $id));
+    }
+
+    // Estado 2 = Rechazada, con su motivo
+    public function guardarRechazo($id, $motivo)
+    {
+        $sql = "UPDATE reservas SET estado = 2, motivo_rechazo = ? WHERE id = ?";
+        return $this->save($sql, array($motivo, $id));
     }
 
     public function getEmpresa()

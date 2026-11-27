@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             if (this.readyState == 4 && this.status == 200) {
                                 const res = JSON.parse(this.responseText);
                                 if (res.icono == 'success') {
-                                    alertify.success(res.msg);;
+                                    alertify.success(res.msg);
                                     setTimeout(() => {
                                         window.location.reload();
                                     }, 1500);
@@ -32,6 +32,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         })
+    }
+
+    // ----- Rechazar reserva con motivo -----
+    const btnRechazar = document.querySelector('#btnRechazar');
+    const frmRechazo = document.querySelector('#frmRechazo');
+    const motivo = document.querySelector('#motivo');
+    const lblDetalle = document.querySelector('#lblDetalle');
+    if (btnRechazar) {
+        btnRechazar.addEventListener('click', function () {
+            frmRechazo.reset();
+            lblDetalle.textContent = 'Detalle (opcional)';
+            $('#modalRechazo').modal('show');
+        });
+        // Si el motivo es "Otro", el detalle pasa a ser obligatorio
+        motivo.addEventListener('change', function () {
+            lblDetalle.textContent = (motivo.value == 'Otro') ? 'Describa el motivo *' : 'Detalle (opcional)';
+        });
+        frmRechazo.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (motivo.value == '') {
+                alertify.error('Selecciona un motivo');
+                return;
+            }
+            const url = base_url + 'reservas/rechazar/' + idreserva.value;
+            const http = new XMLHttpRequest();
+            http.open("POST", url, true);
+            http.send(new FormData(frmRechazo));
+            http.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    const res = JSON.parse(this.responseText);
+                    if (res.icono == 'success') {
+                        $('#modalRechazo').modal('hide');
+                        alertify.success(res.msg);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        alertify.error(res.msg);
+                    }
+                }
+            }
+        });
     }
 
 })
