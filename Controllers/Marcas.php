@@ -1,26 +1,30 @@
 <?php
+/**
+ * Controlador de Marcas de vehículos.
+ * Solo recibe datos de la vista, llama al modelo (MarcasModel) y responde.
+ */
 class Marcas extends Controller
 {
     public function __construct()
     {
-        parent::__construct();
         session_start();
-        if (empty($_SESSION['id_usuario'])) {
+        // Solo el personal (tipo 1) puede entrar a este módulo.
+        if (empty($_SESSION['id_usuario']) || $_SESSION['tipo'] != 1) {
             header("location: " . base_url . 'login');
             exit;
         }
-        if ($_SESSION['tipo'] != 1) {
-            header("location: " . base_url . 'login');
-            exit;
-        }
+        parent::__construct();
     }
+
     public function index()
     {
         $this->views->getView("vehiculos/marcas");
     }
+
     public function listar()
     {
         $data = $this->model->getMarcas(1);
+        // Aquí solo se arma el HTML de la tabla (presentación)
         for ($i = 0; $i < count($data); $i++) {
             $data[$i]['estado'] = '<span class="badge bg-success">Activo</span>';
             $data[$i]['editar'] = '<button class="btn btn-outline-primary" type="button" onclick="btnEditarMarca(' . $data[$i]['id'] . ');"><i class="fas fa-edit"></i></button>';
@@ -29,50 +33,32 @@ class Marcas extends Controller
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
         die();
     }
+
     public function registrar()
     {
-        $marca = strClean($_POST['nombre']);
-        $id = strClean($_POST['id']);
-        if (empty($marca)) {
-            $msg = array('msg' => 'El nombre es requerido', 'icono' => 'warning');
-        } else {
-            if ($id == "") {
-                $data = $this->model->registrarMarca($marca);
-                if ($data == "ok") {
-                    $msg = array('msg' => 'Marca registrado con éxito', 'icono' => 'success');
-                } else if ($data == "existe") {
-                    $msg = array('msg' => 'La marca ya existe', 'icono' => 'warning');
-                } else {
-                    $msg = array('msg' => 'Error al registrar', 'icono' => 'error');
-                }
-            } else {
-                $data = $this->model->modificarMarca($marca, $id);
-                if ($data == "modificado") {
-                    $msg = array('msg' => 'Marca modificado', 'icono' => 'success');
-                } else {
-                    $msg = array('msg' => 'Error al modificar', 'icono' => 'error');
-                }
-            }
-        }
+        // 1. Recibir datos de la vista
+        $datos = array(
+            'id'     => strClean($_POST['id']),
+            'nombre' => strClean($_POST['nombre'])
+        );
+        // 2. El modelo valida, comprueba duplicados y registra o modifica
+        $msg = $this->model->guardar($datos);
+        // 3. Responder a la vista
         echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();
     }
+
     public function editar(int $id)
     {
-        $data = $this->model->editarMarca($id);
+        $data = $this->model->getMarca($id);
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
         die();
     }
+
     public function eliminar(int $id)
     {
-        $data = $this->model->accionMarca(0, $id);
-        if ($data == 1) {
-            $msg = array('msg' => 'Marca dado de baja', 'icono' => 'success');
-        } else {
-            $msg = array('msg' => 'Error al eliminar', 'icono' => 'error');
-        }
+        $msg = $this->model->darDeBaja($id);
         echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();
     }
-    
 }

@@ -9,7 +9,7 @@
 
 El tutor detectó inconsistencias entre lo documentado (patrón MVC) y la implementación real, además de falencias al trazar el flujo de ejecución desde el `index.php`.
 
-- [ ] **Separación estricta de responsabilidades en MVC (Modelo vs. Controlador):**
+- [x] **Separación estricta de responsabilidades en MVC (Modelo vs. Controlador):**
   - **Problema:** Actualmente los modelos (`models/`) solo contienen la conexión/consultas básicas a la base de datos, mientras que toda la lógica de negocio está concentrada en los controladores (`controllers/`).
   - **Acción:** Mover las reglas y lógica de negocio hacia las clases del **Modelo**, dejando al **Controlador** únicamente como intermediario entre las peticiones de la Vista y el Modelo.
 - [ ] **Dominio y trazabilidad del flujo de ejecución (`index.php` -> Vista):**
