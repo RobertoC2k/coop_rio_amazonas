@@ -131,15 +131,24 @@ class ReservasModel extends Query
             if ($reserva['estado'] == 2 && !$esPropia) {
                 continue;   // una reserva rechazada de otro cliente no ocupa el horario
             }
-            $reserva['title'] = $esPropia ? $reserva['nombre'] : 'RESERVADO';
+            $titulo = $esPropia ? $reserva['nombre'] : 'RESERVADO';
             if ($reserva['estado'] == 2) {
-                $reserva['title'] = 'RECHAZADA: ' . $reserva['motivo_rechazo'];
+                $titulo = 'RECHAZADA: ' . $reserva['motivo_rechazo'];
             }
-            $reserva['start'] = $reserva['f_inicio'];
-            $reserva['end'] = $reserva['f_fin'];
             $colores = array(0 => '#dc3545', 1 => '#198754', 2 => '#6c757d');
-            $reserva['color'] = $colores[$reserva['estado']];
-            $eventos[] = $reserva;
+            // Privacidad: se arma un evento nuevo solo con lo que el calendario necesita.
+            // Antes se enviaba la fila completa (nombre, observación, dirección, id del
+            // cliente...) y, aunque se veía "RESERVADO", esos datos viajaban al navegador.
+            $evento = array(
+                'title' => $titulo,
+                'start' => $reserva['f_inicio'],
+                'end'   => $reserva['f_fin'],
+                'color' => $colores[$reserva['estado']],
+            );
+            if ($esPropia) {
+                $evento['id'] = $reserva['id'];   // el id solo se entrega al dueño o al personal
+            }
+            $eventos[] = $evento;
         }
         return $eventos;
     }
