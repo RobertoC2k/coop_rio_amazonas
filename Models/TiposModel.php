@@ -12,8 +12,8 @@ class TiposModel extends Query{
     }
     public function registrarTipo(string $tipo)
     {
-        $verficar = "SELECT * FROM tipos WHERE tipo = '$tipo'";
-        $existe = $this->select($verficar);
+        $verficar = "SELECT * FROM tipos WHERE tipo = ?";
+        $existe = $this->select($verficar, array($tipo));
         if (empty($existe)) {
             # code...
             $sql = "INSERT INTO tipos(tipo) VALUES (?)";

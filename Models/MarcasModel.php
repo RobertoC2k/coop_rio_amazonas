@@ -12,8 +12,8 @@ class MarcasModel extends Query{
     }
     public function registrarMarca(string $marca)
     {
-        $verficar = "SELECT * FROM marcas WHERE marca = '$marca'";
-        $existe = $this->select($verficar);
+        $verficar = "SELECT * FROM marcas WHERE marca = ?";
+        $existe = $this->select($verficar, array($marca));
         if (empty($existe)) {
             $sql = "INSERT INTO marcas(marca) VALUES (?)";
             $datos = array($marca);

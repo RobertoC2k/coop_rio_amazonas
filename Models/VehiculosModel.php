@@ -30,8 +30,8 @@ class VehiculosModel extends Query{
     public function registrarVehiculo($placa, $precio_hora, $precio_dia, $precio_mes,
     $modelo, $kilometraje, $transmision, $asientos, $peso_carga_max, $combustible, $imgNombre, $tipo, $marca)
     {
-        $vericar = "SELECT * FROM vehiculos WHERE placa = '$placa'";
-        $existe = $this->select($vericar);
+        $vericar = "SELECT * FROM vehiculos WHERE placa = ?";
+        $existe = $this->select($vericar, array($placa));
         if (empty($existe)) {
             $sql = "INSERT INTO vehiculos(placa, precio_hora, precio_dia, precio_mes,
             modelo, kilometraje, transmision, asientos, peso_carga_max, combustible, foto, id_tipo, id_marca) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
