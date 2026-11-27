@@ -4,7 +4,7 @@ const host = "localhost";
 const user = "root";
 const pass = "";
 const db = "coop_rio_amazonas";
-const charset = "charset=utf8";
+const charset = "charset=utf8mb4";
 //CONFIGURACION SMTP
 const HOST_SMTP = 'smtp.gmail.com';
 const USER_SMTP = 'robertoconstante045@gmail.com';
