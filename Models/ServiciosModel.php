@@ -61,7 +61,9 @@ class ServiciosModel extends Query
         if (!preg_match('/^\d+(\.\d{1,2})?$/', $abono)) {
             return array('msg' => 'El abono debe ser un número (ejemplo: 50 o 50.25)', 'icono' => 'warning');
         }
-        $total = (int) $d['cantidad'] * $tarifa['monto'];
+        // round(..., 2): la computadora guarda los decimales de forma aproximada
+        // (3 x 1.15 = 3.4499999999...). Sin redondear a centavos, un abono igual al total se rechazaba.
+        $total = round((int) $d['cantidad'] * $tarifa['monto'], 2);
         if ((float) $abono > $total) {
             return array('msg' => 'El abono no puede ser mayor al total del servicio ($' . number_format($total, 2) . ')', 'icono' => 'warning');
         }

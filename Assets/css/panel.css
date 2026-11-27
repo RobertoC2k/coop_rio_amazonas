@@ -1,0 +1,15 @@
+/*
+ * Ajustes propios del panel (personal y cliente).
+ * Se carga DESPUÉS de vertical-layout-light/style.css (la plantilla), para no editar ese archivo.
+ */
+
+/* Nombre de la cooperativa en la cabecera.
+ * La zona del logo mide 255px y la plantilla usa letra de 1.5rem: "Cooperativa Río Amazonas"
+ * no cabía y, al estar centrado, se cortaba por la izquierda ("erativa Río Amazonas").
+ * Con letra menor y permitiendo dos líneas, el nombre completo siempre cabe. */
+.navbar .navbar-brand-wrapper .navbar-brand.brand-logo {
+    font-size: 1.1rem;
+    white-space: normal;
+    line-height: 1.2;
+    text-align: center;
+}

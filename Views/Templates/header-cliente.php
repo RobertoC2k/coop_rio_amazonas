@@ -15,6 +15,7 @@
     <!-- End plugin css for this page -->
     <!-- inject:css -->
     <link rel="stylesheet" href="<?php echo base_url; ?>Assets/css/vertical-layout-light/style.css">
+    <link rel="stylesheet" href="<?php echo base_url; ?>Assets/css/panel.css">
     <!-- endinject -->
     <link rel="shortcut icon" href="<?php echo base_url; ?>Assets/img/logo.png" />
     
