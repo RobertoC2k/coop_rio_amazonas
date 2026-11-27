@@ -72,7 +72,7 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
                             <p class="mb-0 font-weight-normal float-left dropdown-header">Notificationes</p>
-                            <?php foreach ($notificaciones as $reserva) { ?>
+                            <?php foreach (array_slice($notificaciones, 0, 5) as $reserva) { ?>
                                 <a class="dropdown-item preview-item" href="<?php echo base_url . 'reservas/verify/' . $reserva['id']; ?>">
                                     <div class="preview-thumbnail">
                                         <div class="preview-icon bg-danger">
@@ -85,6 +85,12 @@
                                             <?php echo escapar($reserva['f_reserva']); ?>
                                         </p>
                                     </div>
+                                </a>
+                            <?php } ?>
+                            <?php if (count($notificaciones) > 5) { ?>
+                                <!-- Las demás pendientes se ven en rojo en el calendario (clic = detalle) -->
+                                <a class="dropdown-item text-center small" href="<?php echo base_url . 'reservas'; ?>">
+                                    Ver las <?php echo count($notificaciones); ?> pendientes en el calendario
                                 </a>
                             <?php } ?>
                         </div>

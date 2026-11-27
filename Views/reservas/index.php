@@ -154,6 +154,12 @@
                 },
                 locale: 'es',
                 events: base_url + ruta,
+                // Clic en una reserva: abre su detalle para aprobarla o rechazarla
+                eventClick: function(info) {
+                    if (info.event.id) {
+                        window.location.href = base_url + 'reservas/verify/' + info.event.id;
+                    }
+                },
             });
             calendar.render();
         }

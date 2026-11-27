@@ -451,9 +451,12 @@ class ReservasModel extends Query
         return ($data > 0) ? $data : 0;
     }
 
+    // Todas las reservas pendientes (estado 0), de la más reciente a la más antigua.
+    // Antes tenía LIMIT 5: con más de 5 pendientes, las demás no aparecían en ningún lado.
+    // La campana muestra el total y lista las 5 primeras (Templates/header.php).
     public function getNuevasReservas()
     {
-        $sql = "SELECT r.id, r.f_reserva, c.nombre FROM reservas r INNER JOIN clientes c ON r.id_cliente = c.id WHERE r.estado = 0 ORDER BY r.id DESC LIMIT 5";
+        $sql = "SELECT r.id, r.f_reserva, c.nombre FROM reservas r INNER JOIN clientes c ON r.id_cliente = c.id WHERE r.estado = 0 ORDER BY r.id DESC";
         return $this->selectAll($sql);
     }
 
