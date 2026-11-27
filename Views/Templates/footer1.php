@@ -3,7 +3,7 @@
         <div class="row mb-5">
             <div class="col-md">
                 <div class="ftco-footer-widget mb-4">
-                    <h2 class="ftco-heading-2"><a href="#" class="logo">Cooperativa<span>Amazonas</span></a></h2>
+                    <h2 class="ftco-heading-2"><a href="#" class="logo">Cooperativa<span>Río Amazonas</span></a></h2>
                     <p>Servicio de transporte provincial y nacional</p>
                 </div>
             </div>
@@ -26,7 +26,8 @@
                 <p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
                     Copyright &copy;<script>
                         document.write(new Date().getFullYear());
-                    </script> Cooperativa Amazonas 
+                    </script> Cooperativa Río Amazonas |
+                    Plantilla base por <a href="https://colorlib.com" target="_blank" rel="noopener">Colorlib</a>
                     <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
             </div>
         </div>

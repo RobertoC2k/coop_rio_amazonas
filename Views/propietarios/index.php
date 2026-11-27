@@ -36,7 +36,7 @@
             <form id="formulario" onsubmit="registrarProp(event);" autocomplete="off">
                 <div class="modal-body">
                     <div class="alert alert-info" role="alert">
-                        Todo los campos con <span class="text-danger fw-bold">*</span> son obligatorio.
+                        Todos los campos con <span class="text-danger fw-bold">*</span> son obligatorios.
                         El dueño recibirá por correo y WhatsApp el aviso de cada reserva aprobada de su vehículo.
                     </div>
                     <div class="form-floating mb-3">

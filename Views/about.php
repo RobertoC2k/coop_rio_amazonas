@@ -10,7 +10,7 @@
       <div class="col-md-6 wrap-about ftco-animate">
         <div class="heading-section heading-section-white ">
           <span class="subheading">Sobre nosotros</span>
-          <h2 class="mb-4">Bienvenidos a Cooperativa Rio Amazonas</h2>
+          <h2 class="mb-4">Bienvenidos a Cooperativa Río Amazonas</h2>
           <h2 class="mb-4">Misión</h2>
           <p>Brindar servicios de transporte pesado de alta calidad a nivel provincial y nacional, garantizando eficiencia, seguridad y puntualidad en cada traslado. Nos comprometemos a satisfacer las necesidades de nuestros clientes con soluciones logísticas confiables, respaldadas por un equipo de conductores profesionales y una flota moderna y bien mantenida.</p>
           <h2 class="mb-4">Visión</h2>

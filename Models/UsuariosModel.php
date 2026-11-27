@@ -22,7 +22,7 @@ class UsuariosModel extends Query
     {
         // 1. Campos obligatorios y correo válido
         if (empty($d['usuario']) || empty($d['nombre']) || empty($d['correo']) || empty($d['telefono'])) {
-            return array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
+            return array('msg' => 'Todos los campos son obligatorios', 'icono' => 'warning');
         }
         if (!$this->esCorreoValido($d['correo'])) {
             return array('msg' => 'Ingresa un correo valido', 'icono' => 'warning');
@@ -75,7 +75,7 @@ class UsuariosModel extends Query
     public function cambiarClave(int $id, $actual, $nueva, $confirmar)
     {
         if (empty($actual) || empty($nueva) || empty($confirmar)) {
-            return array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
+            return array('msg' => 'Todos los campos son obligatorios', 'icono' => 'warning');
         }
         if ($nueva != $confirmar) {
             return array('msg' => 'Las contraseñas no coinciden', 'icono' => 'warning');
@@ -99,7 +99,7 @@ class UsuariosModel extends Query
             empty($d['usuario']) || empty($d['nombre']) || empty($d['apellido'])
             || empty($d['correo']) || empty($d['telefono']) || empty($d['direccion'])
         ) {
-            return array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
+            return array('msg' => 'Todos los campos son obligatorios', 'icono' => 'warning');
         }
         if (!$this->esCorreoValido($d['correo'])) {
             return array('msg' => 'Ingresa un correo valido', 'icono' => 'warning');

@@ -48,7 +48,7 @@
                                 <use xlink:href="#info-fill" />
                             </svg>
                             <div>
-                                Todo los campos con <span class="text-danger fw-bold">*</span> son obligatorio.
+                                Todos los campos con <span class="text-danger fw-bold">*</span> son obligatorios.
                             </div>
                         </div>
                         <div class="card-body">

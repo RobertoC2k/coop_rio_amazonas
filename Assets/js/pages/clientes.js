@@ -44,7 +44,7 @@ function registrarCli(e) {
     const telefono = document.getElementById("telefono").value;
     const direccion = document.getElementById("direccion").value;
     if (dni == '' || nombre == '' || telefono == '' || direccion == '') {
-        alertify.error("Todo los campos son requeridos");
+        alertify.error("Todos los campos son requeridos");
     } else {
         const url = base_url + 'clientes/registrar';
         const frm = document.getElementById("formulario");

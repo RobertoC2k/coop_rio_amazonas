@@ -29,7 +29,7 @@ class ServiciosModel extends Query
             empty($d['id_cli']) || empty($d['id_veh']) || empty($d['select_cliente']) || empty($d['select_vehiculo'])
             || empty($d['cantidad']) || empty($d['precios']) || trim($d['abono']) === '' || empty($d['fecha'])
         ) {
-            return array('msg' => 'Todo los campos con * son requeridos', 'icono' => 'warning');
+            return array('msg' => 'Todos los campos con * son requeridos', 'icono' => 'warning');
         }
 
         // 2. Cantidad entera dentro del máximo y tarifa válida (1 = hora, 2 = día, 3 = mes)

@@ -43,7 +43,7 @@ function registrarProp(e) {
     e.preventDefault();
     const frm = document.getElementById("formulario");
     if (frm.cedula.value == '' || frm.nombre.value == '' || frm.correo.value == '' || frm.celular.value == '') {
-        alertify.error("Todo los campos son requeridos");
+        alertify.error("Todos los campos son requeridos");
         return;
     }
     const http = new XMLHttpRequest();

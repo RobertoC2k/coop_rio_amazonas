@@ -63,7 +63,7 @@
         </div>
         <div class="card">
             <div class="card-header">
-                Midificar Contraseña
+                Modificar Contraseña
             </div>
             <div class="card-body text-center">
                 <form id="frmCambiarPass" onsubmit="frmCambiarPass(event);">

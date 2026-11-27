@@ -24,7 +24,7 @@ class ClientesModel extends Query
     {
         // 1. Campos obligatorios
         if (empty($d['dni']) || empty($d['nombre']) || empty($d['telefono']) || empty($d['direccion'])) {
-            return array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
+            return array('msg' => 'Todos los campos son obligatorios', 'icono' => 'warning');
         }
 
         // 2. El DNI identifica al cliente: no puede repetirse
@@ -60,7 +60,7 @@ class ClientesModel extends Query
     public function cambiarClave(int $id, $actual, $nueva, $confirmar)
     {
         if (empty($actual) || empty($nueva) || empty($confirmar)) {
-            return array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
+            return array('msg' => 'Todos los campos son obligatorios', 'icono' => 'warning');
         }
         if ($nueva != $confirmar) {
             return array('msg' => 'Las contraseñas no coinciden', 'icono' => 'warning');
@@ -79,7 +79,7 @@ class ClientesModel extends Query
     public function actualizarPerfil(int $id, array $d)
     {
         if (empty($d['dni']) || empty($d['nombre']) || empty($d['correo']) || empty($d['telefono']) || empty($d['direccion'])) {
-            return array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
+            return array('msg' => 'Todos los campos son obligatorios', 'icono' => 'warning');
         }
         if (filter_var($d['correo'], FILTER_VALIDATE_EMAIL) === false) {
             return array('msg' => 'Ingresa un correo valido', 'icono' => 'warning');

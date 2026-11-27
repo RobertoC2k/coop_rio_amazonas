@@ -29,7 +29,7 @@ class VehiculosModel extends Query
             'kilometraje', 'transmision', 'asientos', 'peso_carga_max', 'combustible');
         foreach ($obligatorios as $campo) {
             if (empty($d[$campo])) {
-                return array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
+                return array('msg' => 'Todos los campos son obligatorios', 'icono' => 'warning');
             }
         }
         // El dueño debe existir y estar activo (recibe los avisos de las reservas)

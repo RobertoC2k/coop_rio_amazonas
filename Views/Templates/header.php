@@ -40,8 +40,8 @@
         <!-- partial:partials/_navbar.html -->
         <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-                <a class="navbar-brand brand-logo" href="<?php echo base_url; ?>">Cooperativa Amazonas</a>
-                <a class="navbar-brand brand-logo-mini" href="<?php echo base_url; ?>">Cooperativa Amazonas</a>
+                <a class="navbar-brand brand-logo" href="<?php echo base_url; ?>">Cooperativa Río Amazonas</a>
+                <a class="navbar-brand brand-logo-mini" href="<?php echo base_url; ?>">Cooperativa Río Amazonas</a>
                 <button class="navbar-toggler navbar-toggler align-self-center d-none d-lg-flex" type="button" data-toggle="minimize">
                     <span class="typcn typcn-th-menu"></span>
                 </button>
@@ -55,7 +55,7 @@
                     </li>
                     <li class="nav-item  d-none d-lg-flex">
                         <a class="nav-link" href="<?php echo base_url . 'dashboard'; ?>">
-                            Estatisticas
+                            Estadísticas
                         </a>
                     </li>
                     <li class="nav-item  d-none d-lg-flex">
@@ -71,7 +71,7 @@
                             <span class="count bg-danger"><?php echo count($notificaciones); ?></span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
-                            <p class="mb-0 font-weight-normal float-left dropdown-header">Notificationes</p>
+                            <p class="mb-0 font-weight-normal float-left dropdown-header">Notificaciones</p>
                             <?php foreach (array_slice($notificaciones, 0, 5) as $reserva) { ?>
                                 <a class="dropdown-item preview-item" href="<?php echo base_url . 'reservas/verify/' . $reserva['id']; ?>">
                                     <div class="preview-thumbnail">

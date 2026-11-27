@@ -8,7 +8,7 @@ function modificarEmpresa(e) {
     const direccion = document.getElementById("direccion").value;
 
     if (id == '' || ruc == '' || nombre == '' || telefono == '' || correo == '' || direccion == '') {
-        alertify.error("Todo los campos son requeridos");
+        alertify.error("Todos los campos son requeridos");
     } else {
         const frm = document.getElementById('formulario');
         const url = base_url + 'empresa/modificar';

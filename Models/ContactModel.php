@@ -21,7 +21,7 @@ class ContactModel extends Query
     {
         // 1. Campos obligatorios y correo válido (para poder responderle)
         if (empty($d['nombre']) || empty($d['asunto']) || empty($d['correo']) || empty($d['mensaje'])) {
-            return array('msg' => 'Todo los campos son requeridos', 'icono' => 'error');
+            return array('msg' => 'Todos los campos son requeridos', 'icono' => 'error');
         }
         if (filter_var($d['correo'], FILTER_VALIDATE_EMAIL) === false) {
             return array('msg' => 'Ingresa un correo valido', 'icono' => 'error');

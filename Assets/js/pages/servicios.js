@@ -106,7 +106,7 @@ function registrarServicio(e) {
     const fecha = document.getElementById("fecha").value;
     if (select_cliente == '' || select_vehiculo == '' || id_cli == '' || id_veh == ''
     || cantidad == '' || abono == '' || fecha == '') {
-        alertify.error("Todo los campos son requeridos");
+        alertify.error("Todos los campos son requeridos");
     } else {
         const url = base_url + 'servicios/registrar';
         const frm = document.getElementById("formulario");

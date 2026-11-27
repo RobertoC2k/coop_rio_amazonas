@@ -3,7 +3,7 @@ function frmLogin(e) {
     const usuario = document.getElementById("usuario");
     const clave = document.getElementById("clave");
     if (usuario.value == "" || clave.value == "") {
-        alertify.error("Todo los campos son requeridos");
+        alertify.error("Todos los campos son requeridos");
     } else {
         const url = base_url + "login/validar";
         const frm = document.getElementById("frmLogin");

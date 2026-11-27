@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function(){
         if (formulario.nombre.value == '' || formulario.telefono.value == ''
         || formulario.correo.value == '' || formulario.direccion.value == ''
         || formulario.clave.value == '') {
-            alertify.error("Todo los campos son requeridos");
+            alertify.error("Todos los campos son requeridos");
         } else {
             const url = base_url + "major/verify";
             // Agrega el código de país al FormData

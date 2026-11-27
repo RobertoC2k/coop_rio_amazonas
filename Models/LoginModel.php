@@ -16,7 +16,7 @@ class LoginModel extends Query{
     {
         // 1. Validar campos obligatorios
         if (empty($usuario) || empty($clave)) {
-            return array('msg' => 'Todo los campos son requeridos', 'icono' => 'error', 'sesion' => null);
+            return array('msg' => 'Todos los campos son requeridos', 'icono' => 'error', 'sesion' => null);
         }
 
         // 2. Cifrar la clave igual que cuando se registró

@@ -56,7 +56,7 @@ function registrarVeh(e) {
         || frm.precio_hora.value == '' || frm.precio_dia.value == '' || frm.precio_mes.value == ''
         || frm.kilometraje.value == '' || frm.transmision.value == '' || frm.asientos.value == ''
         || frm.peso_carga_max.value == '' || frm.combustible.value == '') {
-            alertify.error("Todo los campos son requeridos");
+            alertify.error("Todos los campos son requeridos");
     } else {
         const url = base_url + 'vehiculos/registrar';
         const http = new XMLHttpRequest();

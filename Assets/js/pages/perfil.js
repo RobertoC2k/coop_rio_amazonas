@@ -7,7 +7,7 @@ function actualizarDatos(e) {
     const direccion = document.getElementById('direccion').value;
     const apellido = document.getElementById('apellido').value;
     if (user == '' || nombre == '' || apellido == '' || correo == '' || telefono == '' || direccion == '') {
-        alertify.error("Todo los campos son requeridos");
+        alertify.error("Todos los campos son requeridos");
     } else {
         const url = base_url + 'usuarios/actualizarDato';
         const frm = document.getElementById("frmDatos");
@@ -33,7 +33,7 @@ function frmCambiarPass(e) {
     const nueva = document.getElementById('clave_nueva').value;
     const confirmar = document.getElementById('confirmar_clave').value;
     if (actual == '' || nueva == '' || confirmar == '') {
-        alertify.error("Todo los campos son requeridos");
+        alertify.error("Todos los campos son requeridos");
     } else {
         if (nueva != confirmar) {
             alertify.error("Las contraseñas no coinciden");

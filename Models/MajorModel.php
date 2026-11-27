@@ -22,7 +22,7 @@ class MajorModel extends Query
     {
         // 1. Campos obligatorios
         if (empty($d['nombre']) || empty($d['telefono']) || empty($d['correo']) || empty($d['clave']) || empty($d['direccion'])) {
-            return array('msg' => 'Todo los campos son requeridos', 'icono' => 'error');
+            return array('msg' => 'Todos los campos son requeridos', 'icono' => 'error');
         }
         // 2. Correo válido y contraseña de al menos 6 caracteres
         if (filter_var($d['correo'], FILTER_VALIDATE_EMAIL) === false) {

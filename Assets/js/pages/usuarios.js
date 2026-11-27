@@ -43,7 +43,7 @@ function registrarUser(e) {
     const nombre = document.getElementById("nombre").value;
     const correo = document.getElementById("correo").value;
     if (usuario == "" || nombre == "" || correo == "") {
-        alertify.error("Todo los campos son requeridos");
+        alertify.error("Todos los campos son requeridos");
     } else {
         const url = base_url + 'usuarios/registrar';
         const frm = document.getElementById("formulario");

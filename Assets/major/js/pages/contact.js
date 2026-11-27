@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function(){
         e.preventDefault();
         if (formulario.nombre.value == '' || formulario.asunto.value == ''
         || formulario.correo.value == '' || formulario.mensaje.value == '') {
-            alertify.error("Todo los campos son requeridos");
+            alertify.error("Todos los campos son requeridos");
         } else {
             btnEnviar.value = 'Enviando...';
             const url = base_url + "contact/enviarCorreo";

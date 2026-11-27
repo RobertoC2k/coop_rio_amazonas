@@ -22,7 +22,7 @@ class EmpresaModel extends Query
     {
         // 1. Campos obligatorios
         if (empty($d['id']) || empty($d['ruc']) || empty($d['nombre']) || empty($d['telefono']) || empty($d['correo']) || empty($d['direccion'])) {
-            return array('msg' => 'Todo los campos son requeridos', 'icono' => 'warning');
+            return array('msg' => 'Todos los campos son requeridos', 'icono' => 'warning');
         }
         // 2. Correo válido y RUC solo con dígitos.
         //    El RUC se guarda como texto: si se convierte a número se pierde el 0 inicial.

@@ -75,7 +75,7 @@
                 <div class="row no-gutters">
                     <div class="col-md-4 d-flex align-items-center">
                         <form class="request-form ftco-animate bg-primary" id="formulario" autocomplete="off">
-                            <h2>Has una reserva</h2>
+                            <h2>Regístrate para reservar</h2>
                             <div class="form-group">
                                 <label for="nombre" class="label">Nombre</label>
                                 <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Nombre">

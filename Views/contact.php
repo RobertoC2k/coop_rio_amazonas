@@ -20,7 +20,7 @@
                             <div class="icon mr-3">
                                 <span class="icon-mobile-phone"></span>
                             </div>
-                            <p><span>Telefono:</span> <a href="tel://51900897537">0984378505</a></p>
+                            <p><span>Teléfono:</span> <a href="tel:+593984378505">0984378505</a></p>
                         </div>
                     </div>
                     <div class="col-md-12">

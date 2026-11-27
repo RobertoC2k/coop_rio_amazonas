@@ -22,7 +22,7 @@ class PropietariosModel extends Query
     {
         // 1. Campos obligatorios
         if (empty($d['cedula']) || empty($d['nombre']) || empty($d['correo']) || empty($d['celular'])) {
-            return array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
+            return array('msg' => 'Todos los campos son obligatorios', 'icono' => 'warning');
         }
         // 2. Cédula (10 dígitos) o RUC (13 dígitos)
         if (!ctype_digit($d['cedula']) || !in_array(strlen($d['cedula']), array(10, 13))) {

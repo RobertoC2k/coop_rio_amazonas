@@ -29,7 +29,7 @@ class ReservasModel extends Query
             empty($d['id_cli']) || empty($d['id_veh']) || empty($d['cantidad'])
             || empty($d['precios']) || empty($d['fecha']) || empty($d['hora'])
         ) {
-            return array('msg' => 'Todo los campos con * son requeridos', 'icono' => 'warning');
+            return array('msg' => 'Todos los campos con * son requeridos', 'icono' => 'warning');
         }
         // El vehículo debe saber a dónde ir: la dirección del trabajo es obligatoria
         if (strlen(trim($d['direccion_trabajo'])) < 5) {
@@ -343,7 +343,7 @@ class ReservasModel extends Query
         $lineas = array(
             'BEGIN:VCALENDAR',
             'VERSION:2.0',
-            'PRODID:-//Cooperativa Rio Amazonas//Reservas//ES',
+            'PRODID:-//Cooperativa Río Amazonas//Reservas//ES',
             'CALSCALE:GREGORIAN',
             'METHOD:PUBLISH',
             'BEGIN:VEVENT',
