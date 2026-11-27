@@ -5,6 +5,10 @@
  */
 class UsuariosModel extends Query
 {
+    // Largo mínimo de la contraseña del personal (tiene acceso a todo el panel).
+    // Los clientes usan 6, como en el registro desde la web.
+    const MIN_CLAVE = 8;
+
     public function __construct()
     {
         parent::__construct();
@@ -46,8 +50,12 @@ class UsuariosModel extends Query
         if (empty($d['clave']) || empty($d['confirmar'])) {
             return array('msg' => 'La contraseña es requerida', 'icono' => 'warning');
         }
-        if ($d['clave'] != $d['confirmar']) {
+        // !== compara el texto exacto: con != PHP compara "por valor" y "1e1" sería igual a "10"
+        if ($d['clave'] !== $d['confirmar']) {
             return array('msg' => 'Las contraseñas no coinciden', 'icono' => 'warning');
+        }
+        if (mb_strlen($d['clave']) < self::MIN_CLAVE) {
+            return array('msg' => 'La contraseña debe tener al menos ' . self::MIN_CLAVE . ' caracteres', 'icono' => 'warning');
         }
         $ok = $this->registrarUsuario($d['usuario'], $d['nombre'], $d['correo'], $d['telefono'], $this->encriptar($d['clave']));
         return ($ok == 1)
@@ -77,8 +85,11 @@ class UsuariosModel extends Query
         if (empty($actual) || empty($nueva) || empty($confirmar)) {
             return array('msg' => 'Todos los campos son obligatorios', 'icono' => 'warning');
         }
-        if ($nueva != $confirmar) {
+        if ($nueva !== $confirmar) {
             return array('msg' => 'Las contraseñas no coinciden', 'icono' => 'warning');
+        }
+        if (mb_strlen($nueva) < self::MIN_CLAVE) {
+            return array('msg' => 'La contraseña debe tener al menos ' . self::MIN_CLAVE . ' caracteres', 'icono' => 'warning');
         }
         // La clave actual puede estar guardada sin o con la limpieza anterior (ver hashesClave)
         if (!in_array($this->getClave($id), hashesClave($actual), true)) {

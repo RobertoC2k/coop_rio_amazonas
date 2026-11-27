@@ -62,8 +62,13 @@ class ClientesModel extends Query
         if (empty($actual) || empty($nueva) || empty($confirmar)) {
             return array('msg' => 'Todos los campos son obligatorios', 'icono' => 'warning');
         }
-        if ($nueva != $confirmar) {
+        // !== compara el texto exacto: con != PHP compara "por valor" y "1e1" sería igual a "10"
+        if ($nueva !== $confirmar) {
             return array('msg' => 'Las contraseñas no coinciden', 'icono' => 'warning');
+        }
+        // Mismo mínimo que en el registro desde la web (MajorModel)
+        if (mb_strlen($nueva) < 6) {
+            return array('msg' => 'La contraseña debe tener al menos 6 caracteres', 'icono' => 'warning');
         }
         // La clave actual puede estar guardada sin o con la limpieza anterior (ver hashesClave)
         if (!in_array($this->getClave($id), hashesClave($actual), true)) {

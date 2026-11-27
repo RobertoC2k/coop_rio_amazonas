@@ -28,7 +28,7 @@ class MajorModel extends Query
         if (filter_var($d['correo'], FILTER_VALIDATE_EMAIL) === false) {
             return array('msg' => 'Ingresa un correo valido', 'icono' => 'error');
         }
-        if (strlen($d['clave']) < 6) {
+        if (mb_strlen($d['clave']) < 6) {
             return array('msg' => 'La contraseña debe tener al menos 6 caracteres', 'icono' => 'error');
         }
         // 3. El correo no debe estar registrado
