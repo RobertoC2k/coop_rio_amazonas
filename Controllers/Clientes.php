@@ -94,6 +94,11 @@ class Clientes extends Controller{
     
     public function buscarCliente()
     {
+        // Solo el personal (tipo 1) puede buscar clientes: devuelve nombres y direcciones.
+        if ($_SESSION['tipo'] != 1) {
+            header("location: " . base_url . 'login');
+            exit;
+        }
         if (isset($_GET['cli'])) {
             $data = $this->model->buscarCliente($_GET['cli']);
             $datos = array();

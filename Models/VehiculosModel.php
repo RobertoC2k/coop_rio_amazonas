@@ -73,8 +73,13 @@ class VehiculosModel extends Query{
     }
     public function buscarVehiculo(string $valor)
     {
-        $sql = "SELECT v.*, t.tipo, m.marca FROM vehiculos v INNER JOIN tipos t ON t.id =  v.id_tipo INNER JOIN marcas m ON m.id = v.id_marca WHERE v.placa LIKE '%" . $valor . "%' AND v.estado = 1 OR t.tipo LIKE '%" . $valor . "%' AND v.estado = 1 OR m.marca LIKE '%" . $valor . "%'  AND v.estado = 1";
-        $data = $this->selectAll($sql);
-        return $data;
+        // Consulta preparada: busca el texto en placa, tipo o marca, solo en vehículos activos.
+        // Cada "?" recibe el mismo valor con % para buscar coincidencias parciales.
+        $sql = "SELECT v.*, t.tipo, m.marca FROM vehiculos v
+                INNER JOIN tipos t ON t.id = v.id_tipo
+                INNER JOIN marcas m ON m.id = v.id_marca
+                WHERE v.estado = 1 AND (v.placa LIKE ? OR t.tipo LIKE ? OR m.marca LIKE ?)";
+        $buscar = '%' . $valor . '%';
+        return $this->selectAll($sql, array($buscar, $buscar, $buscar));
     }
 }

@@ -12,9 +12,10 @@ class ClientesModel extends Query{
     }
     public function buscarCliente(string $valor)
     {
-        $sql = "SELECT id, nombre, direccion FROM clientes WHERE nombre LIKE '%" . $valor . "%' AND estado = 1";
-        $data = $this->selectAll($sql);
-        return $data;
+        // Consulta preparada: el texto escrito va en el "?" y nunca se mezcla con el SQL.
+        // Los % (cualquier texto antes/después) se añaden al valor, no a la consulta.
+        $sql = "SELECT id, nombre, direccion FROM clientes WHERE nombre LIKE ? AND estado = 1";
+        return $this->selectAll($sql, array('%' . $valor . '%'));
     }
     public function registrarCliente(string $dni, string $nombre, string $telefono, string $direccion)
     {
