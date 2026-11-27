@@ -1,10 +1,4 @@
 <?php
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require_once 'vendor/autoload.php';
-
 /**
  * Modelo de Reservas (solicitud de turno).
  * Una reserva es la solicitud que hace un cliente para usar un vehículo
@@ -164,28 +158,11 @@ class ReservasModel extends Query
     private function notificarAprobacion($reserva)
     {
         $empresa = $this->getEmpresa();
-        $mail = new PHPMailer(true);
-        try {
-            $mail->SMTPDebug = 0;
-            $mail->isSMTP();
-            $mail->Host       = HOST_SMTP;
-            $mail->SMTPAuth   = true;
-            $mail->Username   = USER_SMTP;
-            $mail->Password   = CLAVE_SMTP;
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port       = PUERTO_SMTP;
-            $mail->setFrom($empresa['correo'], $empresa['nombre']);
-            $mail->addAddress($reserva['correo'], $reserva['nombre']);
-            $mail->isHTML(true);
-            $mail->CharSet = 'UTF-8';
-            $mail->Subject = 'Solicitud de reserva';
-            $mail->Body    = 'Confirmamos que tu solicitud de reserva del ' . $reserva['f_inicio']
-                . ' al ' . $reserva['f_fin'] . ' ha sido aprobada.';
-            $mail->send();
-            return true;
-        } catch (Exception $e) {
-            return false;
-        }
+        $cuerpo = 'Confirmamos que tu solicitud de reserva del ' . $reserva['f_inicio']
+            . ' al ' . $reserva['f_fin'] . ' ha sido aprobada.';
+        // Las respuestas del cliente llegan al correo de la cooperativa
+        return Correo::enviar($reserva['correo'], $reserva['nombre'], 'Solicitud de reserva', $cuerpo,
+            $empresa['nombre'], $empresa['correo'], $empresa['nombre']);
     }
 
     /* =========================================================
