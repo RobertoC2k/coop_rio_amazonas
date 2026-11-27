@@ -77,6 +77,10 @@
                         <form class="request-form ftco-animate bg-primary" id="formulario" autocomplete="off">
                             <h2>Regístrate para reservar</h2>
                             <div class="form-group">
+                                <label for="dni" class="label">Cédula</label>
+                                <input type="text" class="form-control" name="dni" id="dni" placeholder="Cédula" maxlength="10" inputmode="numeric">
+                            </div>
+                            <div class="form-group">
                                 <label for="nombre" class="label">Nombre</label>
                                 <input type="text" class="form-control" name="nombre" id="nombre" placeholder="Nombre">
                             </div>

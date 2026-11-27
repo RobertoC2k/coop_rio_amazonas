@@ -19,6 +19,7 @@ class Major extends Controller
         } else {
             // 1. Recibir datos de la vista
             $datos = array(
+                'dni'       => strClean($_POST['dni'] ?? ''),
                 'nombre'    => strClean($_POST['nombre']),
                 'codphone'  => strClean($_POST['codphone']),
                 'telefono'  => strClean($_POST['telefono']),
@@ -26,7 +27,7 @@ class Major extends Controller
                 'clave'     => ($_POST['clave'] ?? ''),
                 'direccion' => strClean($_POST['direccion'])
             );
-            // 2. El modelo valida, comprueba que el correo no exista y registra
+            // 2. El modelo valida, identifica al cliente por su cédula y registra (o completa su registro)
             $res = $this->model->registrarCliente($datos);
         }
         // 3. Responder a la vista
