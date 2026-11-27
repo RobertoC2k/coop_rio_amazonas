@@ -7,6 +7,12 @@ class Empresa extends Controller
         session_start();
         if (empty($_SESSION['id_usuario'])) {
             header("location: " . base_url);
+            exit;
+        }
+        // Solo el personal (tipo 1) puede ver y modificar los datos de la cooperativa.
+        if ($_SESSION['tipo'] != 1) {
+            header("location: " . base_url . 'reservas');
+            exit;
         }
         parent::__construct();
     }

@@ -4,6 +4,7 @@ class Clientes extends Controller{
         session_start();
         if (empty($_SESSION['id_usuario'])) {
             header("location: " . base_url . 'login');
+            exit;
         }
         parent::__construct();
     }
@@ -11,6 +12,7 @@ class Clientes extends Controller{
     {
         if ($_SESSION['tipo'] != 1) {
             header("location: " . base_url . 'login');
+            exit;
         }
         $this->views->getView('clientes/index');
     }
@@ -18,6 +20,7 @@ class Clientes extends Controller{
     {
         if ($_SESSION['tipo'] != 1) {
             header("location: " . base_url . 'login');
+            exit;
         }
         $data = $this->model->getClientes(1);
         for ($i=0; $i < count($data); $i++) { 
@@ -32,6 +35,7 @@ class Clientes extends Controller{
     {
         if ($_SESSION['tipo'] != 1) {
             header("location: " . base_url . 'login');
+            exit;
         }
         $dni = strClean($_POST['dni']);
         $nombre = strClean($_POST['nombre']);
@@ -66,6 +70,7 @@ class Clientes extends Controller{
     {
         if ($_SESSION['tipo'] != 1) {
             header("location: " . base_url . 'login');
+            exit;
         }
         $data = $this->model->editarCli($id);
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
@@ -75,6 +80,7 @@ class Clientes extends Controller{
     {
         if ($_SESSION['tipo'] != 1) {
             header("location: " . base_url . 'login');
+            exit;
         }
         $data = $this->model->accionCli(0, $id);
         if ($data == 1) {

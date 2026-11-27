@@ -7,9 +7,11 @@ class Vehiculos extends Controller
         session_start();
         if (empty($_SESSION['id_usuario'])) {
             header("location: " . base_url . 'login');
+            exit;
         }
         if ($_SESSION['tipo'] != 1) {
             header("location: " . base_url . 'login');
+            exit;
         }
         parent::__construct();
     }
