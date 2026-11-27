@@ -98,11 +98,4 @@ class Usuarios extends Controller{
         echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();
     }
-
-    public function salir()
-    {
-        session_destroy();
-        header("location: " . base_url);
-        exit;
-    }
 }

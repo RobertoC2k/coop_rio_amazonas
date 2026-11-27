@@ -61,7 +61,7 @@
                                 <i class="typcn typcn-cog text-primary"></i>
                                 Perfil
                             </a>
-                            <a class="dropdown-item" href="<?php echo base_url; ?>usuarios/salir">
+                            <a class="dropdown-item" href="<?php echo base_url; ?>login/salir">
                                 <i class="typcn typcn-power text-primary"></i>
                                 Logout
                             </a>

@@ -43,4 +43,22 @@ class Login extends Controller
         echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();
     }
+
+    /**
+     * Cierra la sesión de cualquier usuario (personal o cliente).
+     * Está en Login porque este controlador no exige un tipo de usuario:
+     * en Usuarios el constructor expulsaba al cliente antes de llegar aquí.
+     */
+    public function salir()
+    {
+        $_SESSION = array();                // 1. borra los datos de la sesión
+        if (ini_get('session.use_cookies')) {
+            // 2. caduca la cookie de sesión en el navegador
+            $p = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
+        }
+        session_destroy();                  // 3. elimina la sesión en el servidor
+        header('Location: ' . base_url);
+        exit;
+    }
 }
