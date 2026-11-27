@@ -155,6 +155,16 @@ class ServiciosModel extends Query
     // Cierra el servicio (estado 0 = Finalizado)
     public function finalizar($id)
     {
+        // Solo se finaliza un servicio que existe y sigue en curso. Antes se respondía
+        // "Servicio finalizado" siempre, porque save() devuelve 1 si la consulta se ejecuta,
+        // aunque no haya cambiado ninguna fila.
+        $servicio = $this->getEstadoServicio($id);
+        if (empty($servicio)) {
+            return array('msg' => 'El servicio no existe', 'icono' => 'error');
+        }
+        if ($servicio['estado'] != 1) {
+            return array('msg' => 'El servicio ya estaba finalizado', 'icono' => 'warning');
+        }
         if ($this->actualizarEstado(0, $id) == 'ok') {
             return array('msg' => 'Servicio finalizado', 'icono' => 'success');
         }
@@ -233,6 +243,11 @@ class ServiciosModel extends Query
         $datos = array($cantidad, $precios, $monto, $abono, $inicio, $fin, $observacion, $id_cli, $id_veh);
         return $this->insertar($sql, $datos);
     }
+    public function getEstadoServicio(int $id)
+    {
+        return $this->select("SELECT id, estado FROM servicios WHERE id = ?", array($id));
+    }
+
     public function actualizarEstado(int $estado, int $id)
     {
         $sql = "UPDATE servicios SET estado = ? WHERE id = ?";

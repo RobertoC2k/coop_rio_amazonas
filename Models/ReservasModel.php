@@ -48,7 +48,13 @@ class ReservasModel extends Query
             return array('msg' => 'La fecha de inicio debe ser posterior a la fecha actual', 'icono' => 'warning');
         }
 
-        // 4. El vehículo debe existir y estar activo
+        // 4. El cliente debe seguir activo: si el personal lo dio de baja mientras tenía
+        //    la sesión abierta, ya no puede solicitar reservas
+        if (empty($this->getClienteActivo($d['id_cli']))) {
+            return array('msg' => 'Tu cuenta está dada de baja. Comunícate con la cooperativa', 'icono' => 'error');
+        }
+
+        // 4b. El vehículo debe existir y estar activo
         $vehiculo = $this->getVehiculo($d['id_veh']);
         if (empty($vehiculo) || $vehiculo['estado'] == 0) {
             return array('msg' => 'El vehículo no existe', 'icono' => 'error');
@@ -245,6 +251,15 @@ class ReservasModel extends Query
         if (empty($pendiente) || $pendiente['estado'] != 0) {
             return array('msg' => 'La reserva no existe o ya fue respondida', 'icono' => 'warning');
         }
+        // 1b. El vehículo y el cliente deben seguir activos (pudieron darse de baja
+        //     después de que se hizo la solicitud). En ese caso se debe rechazar.
+        $vehiculo = $this->getVehiculo($pendiente['id_vehiculo']);
+        if (empty($vehiculo) || $vehiculo['estado'] == 0) {
+            return array('msg' => 'El vehículo fue dado de baja: rechaza la reserva indicando el motivo', 'icono' => 'warning');
+        }
+        if (empty($this->getClienteActivo($pendiente['id_cliente']))) {
+            return array('msg' => 'El cliente fue dado de baja: rechaza la reserva indicando el motivo', 'icono' => 'warning');
+        }
         // 2. Cambiar el estado
         if ($this->actualizarEstado(1, $idReserva) != 1) {
             return array('msg' => 'Error al aprobar', 'icono' => 'error');
@@ -435,6 +450,11 @@ class ReservasModel extends Query
     {
         $sql = "SELECT v.*, m.marca, t.tipo FROM vehiculos v INNER JOIN marcas m ON v.id_marca = m.id INNER JOIN tipos t ON v.id_tipo = t.id WHERE v.estado != 0";
         return $this->selectAll($sql);
+    }
+
+    public function getClienteActivo($id)
+    {
+        return $this->select("SELECT id FROM clientes WHERE id = ? AND estado = 1", array($id));
     }
 
     public function getVehiculo($id)
