@@ -6,8 +6,8 @@ class MarcasModel extends Query{
     }
     public function getMarcas(int $estado)
     {
-        $sql = "SELECT * FROM marcas WHERE estado = $estado";
-        $data = $this->selectAll($sql);
+        $sql = "SELECT * FROM marcas WHERE estado = ?";
+        $data = $this->selectAll($sql, array($estado));
         return $data;
     }
     public function registrarMarca(string $marca)
@@ -42,8 +42,8 @@ class MarcasModel extends Query{
     }
     public function editarMarca(int $id)
     {
-        $sql = "SELECT * FROM marcas WHERE id = $id";
-        $data = $this->select($sql);
+        $sql = "SELECT * FROM marcas WHERE id = ?";
+        $data = $this->select($sql, array($id));
         return $data;
     }
     public function accionMarca(int $estado, int $id)

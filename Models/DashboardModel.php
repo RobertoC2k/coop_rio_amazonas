@@ -8,6 +8,11 @@ class DashboardModel extends Query
 
     public function getDatos(string $table)
     {
+        // El nombre de una tabla no puede ir en un "?", por eso solo se aceptan
+        // las tablas de esta lista (lista blanca).
+        if (!in_array($table, array('usuarios', 'clientes', 'vehiculos', 'tipos', 'marcas'))) {
+            return array('total' => 0);
+        }
         $sql = "SELECT COUNT(*) AS total FROM $table WHERE estado = 1";
         $data = $this->select($sql);
         return $data;

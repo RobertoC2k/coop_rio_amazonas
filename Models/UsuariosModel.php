@@ -4,12 +4,6 @@ class UsuariosModel extends Query{
     {
         parent::__construct();
     }
-    public function getUsuario(string $usuario, string $clave)
-    {
-        $sql = "SELECT * FROM usuarios WHERE usuario = '$usuario' AND clave = '$clave'";
-        $data = $this->select($sql);
-        return $data;
-    }
     public function getEmpresa()
     {
         $sql = "SELECT * FROM configuracion";
@@ -18,8 +12,8 @@ class UsuariosModel extends Query{
     }
     public function getUsuarios(int $estado)
     {
-        $sql = "SELECT id,usuario,nombre,correo,estado FROM usuarios WHERE estado = $estado";
-        $data = $this->selectAll($sql);
+        $sql = "SELECT id,usuario,nombre,correo,estado FROM usuarios WHERE estado = ?";
+        $data = $this->selectAll($sql, array($estado));
         return $data;
     }
     public function registrarUsuario(string $usuario, string $nombre, string $correo, string $telefono, string $clave)
@@ -55,8 +49,8 @@ class UsuariosModel extends Query{
     }
     public function editarUser(int $id)
     {
-        $sql = "SELECT * FROM usuarios WHERE id = $id";
-        $data = $this->select($sql);
+        $sql = "SELECT * FROM usuarios WHERE id = ?";
+        $data = $this->select($sql, array($id));
         return $data;
     }
     public function accionUser(int $estado, int $id)

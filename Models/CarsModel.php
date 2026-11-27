@@ -6,15 +6,15 @@ class CarsModel extends Query{
     }
     public function getVehiculos($estado)
     {
-        $sql = "SELECT v.*, m.marca, t.tipo FROM vehiculos v INNER JOIN marcas m ON v.id_marca = m.id INNER JOIN tipos t ON v.id_tipo = t.id WHERE v.estado != $estado";
-        $data = $this->selectAll($sql);
+        $sql = "SELECT v.*, m.marca, t.tipo FROM vehiculos v INNER JOIN marcas m ON v.id_marca = m.id INNER JOIN tipos t ON v.id_tipo = t.id WHERE v.estado != ?";
+        $data = $this->selectAll($sql, array($estado));
         return $data;
     }
 
     public function getVehiculo($id)
     {
-        $sql = "SELECT v.*, m.marca, t.tipo FROM vehiculos v INNER JOIN marcas m ON v.id_marca = m.id INNER JOIN tipos t ON v.id_tipo = t.id WHERE v.id = $id";
-        $data = $this->select($sql);
+        $sql = "SELECT v.*, m.marca, t.tipo FROM vehiculos v INNER JOIN marcas m ON v.id_marca = m.id INNER JOIN tipos t ON v.id_tipo = t.id WHERE v.id = ?";
+        $data = $this->select($sql, array($id));
         return $data;
     }
 }

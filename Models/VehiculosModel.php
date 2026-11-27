@@ -6,14 +6,19 @@ class VehiculosModel extends Query{
     }
     public function getDatos(string $table)
     {
+        // El nombre de una tabla no puede ir en un "?", por eso solo se aceptan
+        // las tablas de esta lista (lista blanca).
+        if (!in_array($table, array('marcas', 'tipos'))) {
+            return array();
+        }
         $sql = "SELECT * FROM $table WHERE estado = 1";
         $data = $this->selectAll($sql);
         return $data;
     }
     public function getVehiculos(int $estado)
     {
-        $sql = "SELECT v.*, m.marca, t.tipo FROM vehiculos v INNER JOIN marcas m ON v.id_marca = m.id INNER JOIN tipos t ON v.id_tipo = t.id WHERE v.estado = $estado";
-        $data = $this->selectAll($sql);
+        $sql = "SELECT v.*, m.marca, t.tipo FROM vehiculos v INNER JOIN marcas m ON v.id_marca = m.id INNER JOIN tipos t ON v.id_tipo = t.id WHERE v.estado = ?";
+        $data = $this->selectAll($sql, array($estado));
         return $data;
     }
     public function vehiculos()
@@ -60,8 +65,8 @@ class VehiculosModel extends Query{
     }
     public function editarVeh(int $id)
     {
-        $sql = "SELECT * FROM vehiculos WHERE id = $id";
-        $data = $this->select($sql);
+        $sql = "SELECT * FROM vehiculos WHERE id = ?";
+        $data = $this->select($sql, array($id));
         return $data;
     }
     public function accionVeh(int $estado, int $id)

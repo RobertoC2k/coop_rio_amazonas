@@ -6,8 +6,8 @@ class TiposModel extends Query{
     }
     public function getTipos(int $estado)
     {
-        $sql = "SELECT * FROM tipos WHERE estado = $estado";
-        $data = $this->selectAll($sql);
+        $sql = "SELECT * FROM tipos WHERE estado = ?";
+        $data = $this->selectAll($sql, array($estado));
         return $data;
     }
     public function registrarTipo(string $tipo)
@@ -43,8 +43,8 @@ class TiposModel extends Query{
     }
     public function editarTipo(int $id)
     {
-        $sql = "SELECT * FROM tipos WHERE id = $id";
-        $data = $this->select($sql);
+        $sql = "SELECT * FROM tipos WHERE id = ?";
+        $data = $this->select($sql, array($id));
         return $data;
     }
     public function accionTipo(int $estado, int $id)

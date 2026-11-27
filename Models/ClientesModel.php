@@ -6,8 +6,8 @@ class ClientesModel extends Query{
     }
     public function getClientes(int $estado)
     {
-        $sql = "SELECT * FROM clientes WHERE estado = $estado";
-        $data = $this->selectAll($sql);
+        $sql = "SELECT * FROM clientes WHERE estado = ?";
+        $data = $this->selectAll($sql, array($estado));
         return $data;
     }
     public function buscarCliente(string $valor)
@@ -50,8 +50,8 @@ class ClientesModel extends Query{
     }
     public function editarCli(int $id)
     {
-        $sql = "SELECT * FROM clientes WHERE id = $id";
-        $data = $this->select($sql);
+        $sql = "SELECT * FROM clientes WHERE id = ?";
+        $data = $this->select($sql, array($id));
         return $data;
     }
     public function accionCli(int $estado, int $id)
