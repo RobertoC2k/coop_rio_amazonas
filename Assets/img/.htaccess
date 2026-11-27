@@ -1,0 +1,6 @@
+# Carpeta de imágenes subidas (vehículos, perfiles, logo).
+# Segunda barrera de seguridad: aunque se colara un archivo con código,
+# Apache se niega a ejecutarlo o entregarlo. Las imágenes se ven normal.
+<FilesMatch "\.(php|php\d|phtml|phar|pht|cgi|pl|py|sh|htaccess)$">
+    Require all denied
+</FilesMatch>

@@ -60,11 +60,12 @@ class VehiculosModel extends Query
         }
         $fotoNueva = !empty($archivo['name']);
         if ($fotoNueva) {
-            $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
-            if (!in_array($extension, array('png', 'jpeg', 'jpg'))) {
-                return array('msg' => 'Archivo no permitido', 'icono' => 'warning');
+            // Se revisa el contenido del archivo, no solo su nombre (ver validarImagen)
+            $imagen = validarImagen($archivo, array('png', 'jpg'));
+            if ($imagen['error'] != null) {
+                return array('msg' => $imagen['error'], 'icono' => 'warning');
             }
-            $foto = date("YmdHis") . '.' . $extension;
+            $foto = date("YmdHis") . '.' . $imagen['extension'];
         } else if ($id > 0 && $conservarFoto) {
             $foto = $anterior['foto'];          // se mantiene la que ya tenía
         } else {

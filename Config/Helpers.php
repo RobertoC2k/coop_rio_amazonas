@@ -89,6 +89,29 @@ function textoPdf($texto)
     return mb_convert_encoding((string) $texto, 'Windows-1252', 'UTF-8');
 }
 
+// Valida una imagen subida ($archivo es el elemento de $_FILES).
+// Antes solo se miraba la extensión del NOMBRE: un "virus.php" renombrado a "virus.jpg"
+// pasaba. Ahora se revisa el CONTENIDO con getimagesize(), que solo reconoce imágenes
+// reales, y la extensión con la que se guarda sale del contenido, no del nombre.
+// $permitidas: extensiones aceptadas, por ejemplo array('png', 'jpg').
+// Devuelve array('error' => mensaje o null, 'extension' => 'png' | 'jpg').
+function validarImagen($archivo, array $permitidas)
+{
+    $maximo = 2 * 1024 * 1024;   // 2 MB
+    if (!isset($archivo['error']) || $archivo['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($archivo['tmp_name'])) {
+        return array('error' => 'No se pudo subir la imagen (máximo 2 MB)', 'extension' => null);
+    }
+    if ($archivo['size'] > $maximo) {
+        return array('error' => 'La imagen no debe pasar de 2 MB', 'extension' => null);
+    }
+    $info = @getimagesize($archivo['tmp_name']);
+    $tipos = array(IMAGETYPE_PNG => 'png', IMAGETYPE_JPEG => 'jpg');
+    if ($info === false || !isset($tipos[$info[2]]) || !in_array($tipos[$info[2]], $permitidas)) {
+        return array('error' => 'El archivo debe ser una imagen ' . strtoupper(implode(' o ', $permitidas)), 'extension' => null);
+    }
+    return array('error' => null, 'extension' => $tipos[$info[2]]);
+}
+
 // Plantillas del panel interno. Cada vista llama a cargarHeader() en su primera línea
 // y a cargarFooter() al final. Según el rol de la sesión se usa:
 //   tipo 1 (personal) -> Templates/header.php y footer.php (menú de administración)

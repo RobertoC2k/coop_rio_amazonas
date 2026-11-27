@@ -34,8 +34,12 @@ class EmpresaModel extends Query
         }
         // 3. El logo (si se sube) debe ser PNG. Se revisa ANTES de guardar nada.
         $logoNuevo = !empty($archivo['name']);
-        if ($logoNuevo && strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION)) != 'png') {
-            return array('msg' => 'El logo debe ser una imagen PNG', 'icono' => 'warning');
+        if ($logoNuevo) {
+            // Se revisa el contenido del archivo, no solo su nombre (ver validarImagen)
+            $imagen = validarImagen($archivo, array('png'));
+            if ($imagen['error'] != null) {
+                return array('msg' => $imagen['error'], 'icono' => 'warning');
+            }
         }
         // 4. Guardar los datos y, si se guardaron, reemplazar el logo
         $ok = $this->modificar($d['ruc'], $d['nombre'], $d['telefono'], $d['correo'], $d['direccion'], $d['mensaje'], 'logo.png', $d['id']);
