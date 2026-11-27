@@ -19,16 +19,21 @@ class LoginModel extends Query{
             return array('msg' => 'Todos los campos son requeridos', 'icono' => 'error', 'sesion' => null);
         }
 
-        // 2. Cifrar la clave igual que cuando se registró
-        $hash = hash("SHA256", $clave);
-
-        // 3. Detectar el perfil: primero se busca en el personal (tipo 1),
-        //    si no existe ahí, se busca en los clientes (tipo 2)
-        $tipo = 1;
-        $data = $this->verificarUsuario($usuario, $hash);
-        if (empty($data)) {
-            $tipo = 2;
-            $data = $this->verificarCliente($usuario, $hash);
+        // 2 y 3. Cifrar la clave y detectar el perfil: primero se busca en el personal (tipo 1),
+        //    si no existe ahí, se busca en los clientes (tipo 2).
+        //    Se prueba cada hash posible (ver hashesClave en Config/Helpers.php) para que
+        //    las cuentas creadas antes del cambio de strClean sigan entrando.
+        $data = null;
+        foreach (hashesClave($clave) as $hash) {
+            $tipo = 1;
+            $data = $this->verificarUsuario($usuario, $hash);
+            if (empty($data)) {
+                $tipo = 2;
+                $data = $this->verificarCliente($usuario, $hash);
+            }
+            if (!empty($data)) {
+                break;
+            }
         }
 
         if (empty($data)) {

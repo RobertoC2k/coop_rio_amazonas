@@ -1,5 +1,21 @@
 <?php
+// Limpia un texto recibido de un formulario: quita espacios al inicio y al final
+// y deja un solo espacio donde había varios (o saltos de línea).
+// Antes además borraba palabras y símbolos "peligrosos" (SELECT, LIKE, --, [, ], ==, ^),
+// lo que alteraba textos legítimos: "Carga [frágil] -- urgente" se guardaba mutilado.
+// La seguridad real no depende de esto:
+//   - inyección SQL -> consultas preparadas con ? (Config/App/Query.php)
+//   - XSS           -> escapar() al mostrar los datos (más abajo)
+// Las contraseñas NO pasan por aquí: se usan tal como el usuario las escribe.
 function strClean($cadena)
+{
+    return trim(preg_replace('/\s+/', ' ', (string) $cadena));
+}
+
+// Versión ANTERIOR de strClean. Se conserva solo para las contraseñas creadas antes del
+// cambio: esas se encriptaron después de pasar por esta limpieza (ej. "abc--123" quedó
+// guardada como "abc123"). No usar para nada más.
+function limpiezaAnterior($cadena)
 {
     $string = preg_replace(['/\s+/','/^\s|\s$/'],[' ',''], $cadena);
     $string = trim($string);
@@ -28,6 +44,18 @@ function strClean($cadena)
     $string = str_ireplace(']', '', $string);
     $string = str_ireplace('==', '', $string);
     return $string;
+}
+
+// Hashes con los que puede estar guardada una contraseña:
+//   1. la clave tal como se escribió (cuentas nuevas o claves cambiadas desde ahora)
+//   2. la clave con la limpieza anterior (cuentas creadas antes de este cambio)
+// Si la clave no tenía símbolos que la limpieza borraba, ambos son iguales y queda uno solo.
+function hashesClave($clave)
+{
+    return array_values(array_unique(array(
+        hash("SHA256", (string) $clave),
+        hash("SHA256", limpiezaAnterior((string) $clave)),
+    )));
 }
 
 // Protección contra XSS (código HTML o JavaScript guardado en un campo de texto).

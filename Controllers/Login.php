@@ -24,7 +24,7 @@ class Login extends Controller
     {
         // 1. Recibir datos de la vista
         $usuario = strClean($_POST['usuario']);
-        $clave = strClean($_POST['clave']);
+        $clave = ($_POST['clave'] ?? '');
 
         // 2. El modelo decide si las credenciales son válidas y qué perfil tiene
         $resultado = $this->model->autenticar($usuario, $clave);

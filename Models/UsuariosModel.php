@@ -80,7 +80,8 @@ class UsuariosModel extends Query
         if ($nueva != $confirmar) {
             return array('msg' => 'Las contraseñas no coinciden', 'icono' => 'warning');
         }
-        if ($this->getClave($id) != $this->encriptar($actual)) {
+        // La clave actual puede estar guardada sin o con la limpieza anterior (ver hashesClave)
+        if (!in_array($this->getClave($id), hashesClave($actual), true)) {
             return array('msg' => 'La contraseña actual es incorrecta', 'icono' => 'warning');
         }
         return ($this->modificarPass($this->encriptar($nueva), $id) == 1)

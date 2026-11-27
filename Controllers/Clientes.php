@@ -101,9 +101,9 @@ class Clientes extends Controller{
         $this->soloCliente();
         $msg = $this->model->cambiarClave(
             $_SESSION['id_usuario'],
-            strClean($_POST['clave_actual']),
-            strClean($_POST['clave_nueva']),
-            strClean($_POST['confirmar_clave'])
+            ($_POST['clave_actual'] ?? ''),
+            ($_POST['clave_nueva'] ?? ''),
+            ($_POST['confirmar_clave'] ?? '')
         );
         echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();

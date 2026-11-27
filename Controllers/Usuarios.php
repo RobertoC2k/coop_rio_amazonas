@@ -41,8 +41,8 @@ class Usuarios extends Controller{
             'nombre'    => strClean($_POST['nombre']),
             'correo'    => strClean($_POST['correo']),
             'telefono'  => strClean($_POST['telefono']),
-            'clave'     => strClean($_POST['clave']),
-            'confirmar' => strClean($_POST['confirmar'])
+            'clave'     => ($_POST['clave'] ?? ''),
+            'confirmar' => ($_POST['confirmar'] ?? '')
         );
         // 2. El modelo valida, comprueba duplicados y registra o modifica
         $msg = $this->model->guardar($datos);
@@ -69,9 +69,9 @@ class Usuarios extends Controller{
     {
         $msg = $this->model->cambiarClave(
             $_SESSION['id_usuario'],
-            strClean($_POST['clave_actual']),
-            strClean($_POST['clave_nueva']),
-            strClean($_POST['confirmar_clave'])
+            ($_POST['clave_actual'] ?? ''),
+            ($_POST['clave_nueva'] ?? ''),
+            ($_POST['confirmar_clave'] ?? '')
         );
         echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();

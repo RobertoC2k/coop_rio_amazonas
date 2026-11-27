@@ -23,7 +23,7 @@ class Major extends Controller
                 'codphone'  => strClean($_POST['codphone']),
                 'telefono'  => strClean($_POST['telefono']),
                 'correo'    => strClean($_POST['correo']),
-                'clave'     => strClean($_POST['clave']),
+                'clave'     => ($_POST['clave'] ?? ''),
                 'direccion' => strClean($_POST['direccion'])
             );
             // 2. El modelo valida, comprueba que el correo no exista y registra
