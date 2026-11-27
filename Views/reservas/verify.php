@@ -3,11 +3,11 @@
 <div class="card">
     <div class="card-body">
         <div class="row">
-            <input type="hidden" id="idreserva" value="<?php echo $data['reserva']['id']; ?>">
+            <input type="hidden" id="idreserva" value="<?php echo escapar($data['reserva']['id']); ?>">
             <div class="col-md-6">
                 <ul class="list-group">
-                    <li class="list-group-item"><b>Vehículo: </b> <?php echo $data['vehiculo']['tipo']; ?></li>
-                    <li class="list-group-item"><b>Marca: </b> <?php echo $data['vehiculo']['marca']; ?></li>
+                    <li class="list-group-item"><b>Vehículo: </b> <?php echo escapar($data['vehiculo']['tipo']); ?></li>
+                    <li class="list-group-item"><b>Marca: </b> <?php echo escapar($data['vehiculo']['marca']); ?></li>
                     <li class="list-group-item"><img class="img-thumbnail" src="<?php echo base_url . 'Assets/img/vehiculos/' . $data['vehiculo']['foto']; ?>" alt=""></li>
                 </ul>
             </div>
@@ -21,18 +21,18 @@
                     $tipo = 'MESES: ';
                 } ?>
                 <ul class="list-group mb-3">
-                    <li class="list-group-item"><b>Cliente:</b> <?php echo $data['reserva']['nombre']; ?></li>
-                    <li class="list-group-item"><b>Fecha de inicio:</b> <?php echo $data['reserva']['f_inicio']; ?></li>
-                    <li class="list-group-item"><b>Fecha de fin:</b> <?php echo $data['reserva']['f_fin']; ?></li>
-                    <li class="list-group-item"><b>Duración:</b> <?php echo $data['duracion']; ?></li>
+                    <li class="list-group-item"><b>Cliente:</b> <?php echo escapar($data['reserva']['nombre']); ?></li>
+                    <li class="list-group-item"><b>Fecha de inicio:</b> <?php echo escapar($data['reserva']['f_inicio']); ?></li>
+                    <li class="list-group-item"><b>Fecha de fin:</b> <?php echo escapar($data['reserva']['f_fin']); ?></li>
+                    <li class="list-group-item"><b>Duración:</b> <?php echo escapar($data['duracion']); ?></li>
                     <li class="list-group-item"><b>Punto de trabajo:</b> <?php echo htmlspecialchars((string) $data['reserva']['direccion_trabajo']); ?></li>
-                    <li class="list-group-item"><b>Observaciones:</b> <?php echo $data['reserva']['observacion']; ?></li>
+                    <li class="list-group-item"><b>Observaciones:</b> <?php echo escapar($data['reserva']['observacion']); ?></li>
                     <li class="list-group-item"><b>Dueño del vehículo:</b>
                         <?php echo $data['reserva']['prop_nombre']
                             ? htmlspecialchars($data['reserva']['prop_nombre'] . ' - ' . $data['reserva']['prop_celular'])
                             : '<span class="text-danger">Sin dueño asignado (asígnalo en Vehículos)</span>'; ?>
                     </li>
-                    <li class="list-group-item"><b><?php echo $tipo; ?></b><?php echo $data['reserva']['monto']; ?></li>
+                    <li class="list-group-item"><b><?php echo $tipo; ?></b><?php echo escapar($data['reserva']['monto']); ?></li>
                     <li class="list-group-item"><b>Total:</b> <?php echo number_format($data['reserva']['monto'] * $data['reserva']['cantidad'], 2); ?></li>
                 </ul>
                 <?php if ($data['reserva']['estado'] == 0) { ?>

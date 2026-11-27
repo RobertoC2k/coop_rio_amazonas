@@ -46,7 +46,7 @@ class Servicios extends Controller
 
     public function listar()
     {
-        $data = $this->model->getServicios();
+        $data = escaparFilas($this->model->getServicios());
         // Aquí solo se arma el HTML de la tabla (presentación)
         for ($i = 0; $i < count($data); $i++) {
             $id = $data[$i]['id'];

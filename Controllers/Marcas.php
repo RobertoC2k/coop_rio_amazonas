@@ -23,7 +23,7 @@ class Marcas extends Controller
 
     public function listar()
     {
-        $data = $this->model->getMarcas(1);
+        $data = escaparFilas($this->model->getMarcas(1));
         // Aquí solo se arma el HTML de la tabla (presentación)
         for ($i = 0; $i < count($data); $i++) {
             $data[$i]['estado'] = '<span class="badge bg-success">Activo</span>';

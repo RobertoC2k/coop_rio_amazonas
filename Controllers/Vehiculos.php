@@ -26,7 +26,7 @@ class Vehiculos extends Controller
 
     public function listar()
     {
-        $data = $this->model->vehiculos();
+        $data = escaparFilas($this->model->vehiculos());
         $date = date('Y-m-d');
         // Aquí solo se arma el HTML de la tabla (presentación)
         for ($i = 0; $i < count($data); $i++) {

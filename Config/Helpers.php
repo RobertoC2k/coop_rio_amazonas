@@ -30,6 +30,28 @@ function strClean($cadena)
     return $string;
 }
 
+// Protección contra XSS (código HTML o JavaScript guardado en un campo de texto).
+// escapar() convierte < > " ' & en texto visible, para que el navegador lo muestre
+// en lugar de ejecutarlo. Se usa en las vistas al imprimir datos escritos por usuarios.
+function escapar($texto)
+{
+    return htmlspecialchars((string) $texto, ENT_QUOTES, 'UTF-8');
+}
+
+// Lo mismo para las filas que los listar() envían a DataTables (que dibuja como HTML).
+// Se aplica ANTES de agregar los botones y badges, que sí son HTML del sistema.
+function escaparFilas(array $filas)
+{
+    foreach ($filas as $i => $fila) {
+        foreach ($fila as $campo => $valor) {
+            if (is_string($valor)) {
+                $filas[$i][$campo] = escapar($valor);
+            }
+        }
+    }
+    return $filas;
+}
+
 // Plantillas del panel interno. Cada vista llama a cargarHeader() en su primera línea
 // y a cargarFooter() al final. Según el rol de la sesión se usa:
 //   tipo 1 (personal) -> Templates/header.php y footer.php (menú de administración)

@@ -24,9 +24,9 @@
 									<div class="img" style="background-image:url(<?php echo base_url . 'Assets/img/vehiculos/' . $car['foto']; ?>);"></div>
 								</td>
 								<td class="product-name">
-									<h3><?php echo $car['tipo']; ?></h3>
+									<h3><?php echo escapar($car['tipo']); ?></h3>
 									<p class="mb-0 rated">
-										<span><?php echo $car['marca']; ?></span>
+										<span><?php echo escapar($car['marca']); ?></span>
 									</p>
 								</td>
 
@@ -34,7 +34,7 @@
 									<p class="btn-custom"><a href="<?php echo base_url . 'reservas?car=' . $car['id']; ?>">Reservar</a></p>
 									<div class="price-rate">
 										<h3>
-											<span class="num"><small class="currency">$</small> <?php echo $car['precio_hora']; ?></span>
+											<span class="num"><small class="currency">$</small> <?php echo escapar($car['precio_hora']); ?></span>
 											<span class="per">/por hora</span>
 										</h3>
 										<!-- <span class="subheading">Recargos por combustible de $3/hora</span> -->
@@ -45,7 +45,7 @@
 									<p class="btn-custom"><a href="<?php echo base_url . 'reservas?car=' . $car['id']; ?>">Reservar</a></p>
 									<div class="price-rate">
 										<h3>
-											<span class="num"><small class="currency">$</small> <?php echo $car['precio_dia']; ?></span>
+											<span class="num"><small class="currency">$</small> <?php echo escapar($car['precio_dia']); ?></span>
 											<span class="per">/por dia</span>
 										</h3>
 										<!-- <span class="subheading">Recargos por combustible de $3/hora</span> -->
@@ -56,7 +56,7 @@
 									<p class="btn-custom"><a href="<?php echo base_url . 'reservas?car=' . $car['id']; ?>">Reservar</a></p>
 									<div class="price-rate">
 										<h3>
-											<span class="num"><small class="currency">$</small> <?php echo $car['precio_mes']; ?></span>
+											<span class="num"><small class="currency">$</small> <?php echo escapar($car['precio_mes']); ?></span>
 											<span class="per">/por mes</span>
 										</h3>
 										<!-- <span class="subheading">Recargos por combustible de $3/hora</span> -->

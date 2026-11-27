@@ -26,39 +26,39 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-floating mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="El ruc es requerido">
-                            <input id="id" class="form-control" type="hidden" name="id" value="<?php echo $data['empresa']['id'] ?>" required>
-                            <input id="ruc" class="form-control" type="number" name="ruc" placeholder="Ruc" value="<?php echo $data['empresa']['ruc'] ?>" required>
+                            <input id="id" class="form-control" type="hidden" name="id" value="<?php echo escapar($data['empresa']['id']); ?>" required>
+                            <input id="ruc" class="form-control" type="number" name="ruc" placeholder="Ruc" value="<?php echo escapar($data['empresa']['ruc']); ?>" required>
                             <label for="ruc"><i class="fas fa-id-card"></i> Ruc <span class="text-danger fw-bold">*</span> </label>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="El nombre es requerido">
-                            <input id="nombre" class="form-control" type="text" name="nombre" placeholder="Nombre" value="<?php echo $data['empresa']['nombre'] ?>" required>
+                            <input id="nombre" class="form-control" type="text" name="nombre" placeholder="Nombre" value="<?php echo escapar($data['empresa']['nombre']); ?>" required>
                             <label for="nombre"><i class="fas fa-list"></i> Nombre <span class="text-danger fw-bold">*</span> </label>
                         </div>
                     </div>
                     <div class="col-md-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="El teléfono es requerido">
                         <div class="form-floating mb-3">
-                            <input id="telefono" class="form-control" type="text" name="telefono" placeholder="Teléfono" value="<?php echo $data['empresa']['telefono'] ?>" required>
+                            <input id="telefono" class="form-control" type="text" name="telefono" placeholder="Teléfono" value="<?php echo escapar($data['empresa']['telefono']); ?>" required>
                             <label for="telefono"><i class="fas fa-phone"></i> Teléfono <span class="text-danger fw-bold">*</span> </label>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-floating mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="El correo es requerido">
-                            <input id="correo" class="form-control" type="text" name="correo" placeholder="Correo" value="<?php echo $data['empresa']['correo'] ?>" required>
+                            <input id="correo" class="form-control" type="text" name="correo" placeholder="Correo" value="<?php echo escapar($data['empresa']['correo']); ?>" required>
                             <label for="correo"><i class="fas fa-envelope"></i> Correo <span class="text-danger fw-bold">*</span> </label>
                         </div>
                     </div>
                     <div class="col-md-8">
                         <div class="form-floating mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="La dirección es requerido">
-                            <textarea id="direccion" class="form-control" name="direccion" rows="3" placeholder="Dirección" required><?php echo $data['empresa']['direccion'] ?></textarea>
+                            <textarea id="direccion" class="form-control" name="direccion" rows="3" placeholder="Dirección" required><?php echo escapar($data['empresa']['direccion']); ?></textarea>
                             <label for="direccion"><i class="fas fa-home"></i> Dirección <span class="text-danger fw-bold">*</span> </label>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="mensaje"><i class="fas fa-envelope"></i> Mensaje</label>
-                            <textarea id="mensaje" class="form-control" name="mensaje" rows="3"><?php echo $data['empresa']['mensaje'] ?></textarea>
+                            <textarea id="mensaje" class="form-control" name="mensaje" rows="3"><?php echo escapar($data['empresa']['mensaje']); ?></textarea>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -70,7 +70,7 @@
                                     <label for="imagen" id="icon-image" class="btn btn-primary"><i class="fas fa-cloud-upload-alt"></i> </label>
                                     <span id="icon-cerrar"></span>
                                     <input id="imagen" class="d-none" type="file" name="imagen" onchange="previewLogo(event)">
-                                    <img class="img-thumbnail" id="img-preview" src="<?php echo base_url; ?>Assets/img/<?php echo $data['empresa']['logo']; ?>" width="200">
+                                    <img class="img-thumbnail" id="img-preview" src="<?php echo base_url; ?>Assets/img/<?php echo escapar($data['empresa']['logo']); ?>" width="200">
                                 </div>
                             </div>
                         </div>

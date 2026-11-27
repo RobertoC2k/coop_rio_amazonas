@@ -11,10 +11,10 @@
 						<div class="img rounded d-flex align-items-end" style="background-image: url(<?php echo base_url . 'Assets/img/vehiculos/' . $car['foto']; ?>);">
 						</div>
 						<div class="text">
-							<h2 class="mb-0"><a href="#"><?php echo $car['tipo']; ?></a></h2>
+							<h2 class="mb-0"><a href="#"><?php echo escapar($car['tipo']); ?></a></h2>
 							<div class="d-flex mb-3">
-								<span class="cat"><?php echo $car['marca']; ?></span>
-								<p class="price ml-auto">$<?php echo $car['precio_dia']; ?> <span>/dia</span></p>
+								<span class="cat"><?php echo escapar($car['marca']); ?></span>
+								<p class="price ml-auto">$<?php echo escapar($car['precio_dia']); ?> <span>/dia</span></p>
 							</div>
 							<p class="d-flex mb-0 d-block"><a href="<?php echo base_url . 'reservas?car=' . $car['id']; ?>" class="btn btn-primary py-2 mr-1">Reservar ahora</a> 
 							<a href="<?php echo base_url . 'cars/single/' . $car['id']; ?>" class="btn btn-secondary py-2 ml-1">Details</a></p>

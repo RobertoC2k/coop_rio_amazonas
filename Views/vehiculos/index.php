@@ -60,7 +60,7 @@
                                 <select id="propietario" class="form-control" name="propietario" required>
                                     <option value="">Seleccionar</option>
                                     <?php foreach ($data['propietarios'] as $row) { ?>
-                                        <option value="<?php echo $row['id']; ?>"><?php echo $row['nombre'] . ' - ' . $row['cedula']; ?></option>
+                                        <option value="<?php echo escapar($row['id']); ?>"><?php echo escapar($row['nombre'] . ' - ' . $row['cedula']); ?></option>
                                     <?php } ?>
                                 </select>
                                 <label for="propietario">Dueño del vehículo <span class="text-danger fw-bold">*</span></label>
@@ -80,7 +80,7 @@
                                 <select id="marca" class="form-control" name="marca" required>
                                     <option value="">Seleccionar</option>
                                     <?php foreach ($data['marcas'] as $row) { ?>
-                                        <option value="<?php echo $row['id']; ?>"><?php echo $row['marca']; ?></option>
+                                        <option value="<?php echo escapar($row['id']); ?>"><?php echo escapar($row['marca']); ?></option>
                                     <?php } ?>
                                 </select>
                                 <label for="marca">Marcas <span class="text-danger fw-bold">*</span></label>
@@ -91,7 +91,7 @@
                                 <select id="tipo" class="form-control" name="tipo" required>
                                     <option value="">Seleccionar</option>
                                     <?php foreach ($data['tipos'] as $row) { ?>
-                                        <option value="<?php echo $row['id']; ?>"><?php echo $row['tipo']; ?></option>
+                                        <option value="<?php echo escapar($row['id']); ?>"><?php echo escapar($row['tipo']); ?></option>
                                     <?php } ?>
                                 </select>
                                 <label for="tipo">Tipos <span class="text-danger fw-bold">*</span></label>

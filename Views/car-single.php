@@ -9,8 +9,8 @@
                 <div class="car-details">
                     <div class="img rounded" style="background-image: url(<?php echo base_url . 'Assets/img/vehiculos/' . $data['vehiculo']['foto']; ?>);"></div>
                     <div class="text text-center">
-                        <span class="subheading"><?php echo $data['vehiculo']['marca']; ?></span>
-                        <h2><?php echo $data['vehiculo']['tipo']; ?></h2>
+                        <span class="subheading"><?php echo escapar($data['vehiculo']['marca']); ?></span>
+                        <h2><?php echo escapar($data['vehiculo']['tipo']); ?></h2>
                     </div>
                 </div>
             </div>
@@ -24,7 +24,7 @@
                             <div class="text">
                                 <h3 class="heading mb-0 pl-3">
                                     Kilometraje
-                                    <span><?php echo $data['vehiculo']['kilometraje']; ?></span>
+                                    <span><?php echo escapar($data['vehiculo']['kilometraje']); ?></span>
                                 </h3>
                             </div>
                         </div>
@@ -39,7 +39,7 @@
                             <div class="text">
                                 <h3 class="heading mb-0 pl-3">
                                     Transmision
-                                    <span><?php echo $data['vehiculo']['transmision']; ?></span>
+                                    <span><?php echo escapar($data['vehiculo']['transmision']); ?></span>
                                 </h3>
                             </div>
                         </div>
@@ -54,7 +54,7 @@
                             <div class="text">
                                 <h3 class="heading mb-0 pl-3">
                                     Asientos
-                                    <span><?php echo $data['vehiculo']['asientos']; ?></span>
+                                    <span><?php echo escapar($data['vehiculo']['asientos']); ?></span>
                                 </h3>
                             </div>
                         </div>
@@ -69,7 +69,7 @@
                             <div class="text">
                                 <h3 class="heading mb-0 pl-3">
                                     Peso de carga máx.
-                                    <span><?php echo $data['vehiculo']['peso_carga_max']; ?></span>
+                                    <span><?php echo escapar($data['vehiculo']['peso_carga_max']); ?></span>
                                 </h3>
                             </div>
                         </div>
@@ -84,7 +84,7 @@
                             <div class="text">
                                 <h3 class="heading mb-0 pl-3">
                                     Combustible
-                                    <span><?php echo $data['vehiculo']['combustible']; ?></span>
+                                    <span><?php echo escapar($data['vehiculo']['combustible']); ?></span>
                                 </h3>
                             </div>
                         </div>

@@ -9,7 +9,7 @@
                         <li class="list-group-item cars <?php echo (!empty($_GET['car']) && $_GET['car'] == $car['id']) ? 'bg-warning' : ''; ?>" id="<?php echo $car['id']; ?>">
                             <img class="img-thumbnail" width="50" src="<?php echo base_url . 'Assets/img/vehiculos/' . $car['foto']; ?>" alt="">
                             <a href="#" class="text-decoration-none" onclick="verificarReserva(event, <?php echo $car['id']; ?>)" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Click Aqui">
-                                <?php echo $car['tipo'] . ' - ' . $car['marca']; ?>
+                                <?php echo escapar($car['tipo'] . ' - ' . $car['marca']); ?>
                             </a>
                         </li>
                         <hr>

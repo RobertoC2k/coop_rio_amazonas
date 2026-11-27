@@ -39,7 +39,7 @@
             <form id="formulario" onsubmit="registrarServicio(event)" autocomplete="off">
                 <div class="modal-body">
                     <?php foreach ($data['vehiculos'] as $row) { ?>
-                        <span class="badge bg-success"> <i class="fas fa-truck"></i> <?php echo $row['placa'] . ' - ' . $row['tipo'] . ' - ' . $row['marca'] ?></span>
+                        <span class="badge bg-success"> <i class="fas fa-truck"></i> <?php echo escapar($row['placa'] . ' - ' . $row['tipo'] . ' - ' . $row['marca']); ?></span>
                     <?php } ?>
                     <div class="card my-2">
 

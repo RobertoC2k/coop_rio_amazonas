@@ -42,7 +42,7 @@ class Clientes extends Controller{
     public function listar()
     {
         $this->soloPersonal();
-        $data = $this->model->getClientes(1);
+        $data = escaparFilas($this->model->getClientes(1));
         // Aquí solo se arma el HTML de la tabla (presentación)
         for ($i = 0; $i < count($data); $i++) {
             $data[$i]['estado'] = '<span class="badge bg-success">Activo</span>';

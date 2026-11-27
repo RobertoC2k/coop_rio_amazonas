@@ -80,9 +80,9 @@
                                         </div>
                                     </div>
                                     <div class="preview-item-content">
-                                        <h6 class="preview-subject font-weight-normal"><?php echo $reserva['nombre']; ?></h6>
+                                        <h6 class="preview-subject font-weight-normal"><?php echo escapar($reserva['nombre']); ?></h6>
                                         <p class="font-weight-light small-text mb-0">
-                                            <?php echo $reserva['f_reserva']; ?>
+                                            <?php echo escapar($reserva['f_reserva']); ?>
                                         </p>
                                     </div>
                                 </a>
@@ -92,7 +92,7 @@
                     <li class="nav-item nav-profile dropdown">
                         <a class="nav-link dropdown-toggle  pl-0 pr-0" href="#" data-toggle="dropdown" id="profileDropdown">
                             <i class="typcn typcn-user-outline mr-0"></i>
-                            <span class="nav-profile-name"><?php echo $_SESSION['nombre']; ?></span>
+                            <span class="nav-profile-name"><?php echo escapar($_SESSION['nombre']); ?></span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
                             <a class="dropdown-item" href="<?php echo base_url; ?>usuarios/perfil">
@@ -151,10 +151,10 @@
                             </div>
                             <div class="sidebar-profile-name">
                                 <p class="sidebar-name">
-                                    <?php echo $_SESSION['nombre']; ?>
+                                    <?php echo escapar($_SESSION['nombre']); ?>
                                 </p>
                                 <p class="sidebar-designation">
-                                    <?php echo $_SESSION['correo']; ?>
+                                    <?php echo escapar($_SESSION['correo']); ?>
                                 </p>
                             </div>
                         </div>
