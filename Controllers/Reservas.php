@@ -78,6 +78,9 @@ class Reservas extends Controller
         $data['motivos'] = $this->model->motivosRechazo();
         $data['duracion'] = $this->model->textoDuracion($data['reserva']['cantidad'], $data['reserva']['tipo_precio']);
         $data['whatsapp'] = $this->model->enlaceWhatsapp($data['reserva']);
+        // Texto de la tarifa y total: los calcula el modelo (antes se calculaban en la vista)
+        $data['texto_tipo'] = $this->model->textoTipoPrecio($data['reserva']['tipo_precio']);
+        $data['total'] = $this->model->calcularTotal($data['reserva']['cantidad'], $data['reserva']['monto']);
         $this->views->getView("reservas/verify", $data);
     }
 

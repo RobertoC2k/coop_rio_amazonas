@@ -80,140 +80,28 @@ class Servicios extends Controller
         die();
     }
 
-    // Comprobante PDF de un servicio
+    // Comprobante PDF de un servicio.
+    // El modelo prepara los datos y la vista Views/servicios/pdf-comprobante.php dibuja el PDF.
     public function pdfServicio($id)
     {
-        $empresa = $this->model->getEmpresa();
-        $data = $this->model->getServicio($id);
+        $data = $this->model->datosComprobante((int) $id);
         // Servicio inexistente (ej. servicios/pdfServicio/999): página de error en vez de un PDF roto
         if (empty($data)) {
             header('Location: ' . base_url . 'errors');
             exit;
         }
-        require('Libraries/fpdf/html2pdf.php');
-
-        $pdf = new PDF_HTML('P', 'mm', array(210, 148));
-        $pdf->AddPage();
-        $pdf->SetMargins(10, 0, 0);
-        $pdf->SetTitle('Comprobante de Servicio', true);
-        $pdf->SetFont('Arial', '', 12);
-        $pdf->Cell(135, 8, textoPdf($empresa['nombre']), 0, 1, 'C');
-        $pdf->SetFont('Arial', '', 9);
-        $pdf->Cell(20, 5, 'Ruc: ', 0, 0, 'L');
-        $pdf->Cell(50, 5, $empresa['ruc'], 0, 0, 'L');
-        $pdf->Cell(20, 5, textoPdf('Teléfono: '), 0, 0, 'L');
-        $pdf->Cell(50, 5, $empresa['telefono'], 0, 1, 'L');
-        $pdf->Cell(20, 5, textoPdf('Correo: '), 0, 0, 'L');
-        $pdf->Cell(50, 5, textoPdf($empresa['correo']), 0, 0, 'L');
-        $pdf->Cell(20, 5, textoPdf('Dirección: '), 0, 0, 'L');
-        $pdf->Cell(50, 5, textoPdf($empresa['direccion']), 0, 1, 'L');
-        $pdf->Cell(20, 5, 'Fecha: ', 0, 0, 'L');
-        $pdf->Cell(50, 5, $data['fecha_inicio'], 0, 0, 'L');
-        $estado = $this->model->textoEstado($data['estado']);
-        if ($data['estado'] == 1) {
-            $pdf->SetTextColor(255, 0, 0);
-        } else {
-            $pdf->SetTextColor(0, 0, 255);
-        }
-        $pdf->SetFont('Arial', 'B', 9);
-        $pdf->Cell(20, 5, 'Estado: ', 0, 0, 'L');
-        $pdf->Cell(50, 5, $estado, 0, 1, 'L');
-        //Encabezado
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->SetFont('Arial', 'B', 9);
-        $pdf->Cell(135, 10, 'Datos del Cliente', 0, 1, 'C');
-        $pdf->SetFont('Arial', '', 9);
-        $pdf->Cell(40, 5, 'DOC: ' . $data['dni'], 1, 0, 'L');
-        $pdf->Cell(95, 5, 'NOMBRE: ' . textoPdf($data['nombre']), 1, 1, 'L');
-        $pdf->Cell(65, 5, textoPdf('DIRECCIÓN: ' . $data['direccion']), 1, 0, 'L');
-        $pdf->Cell(70, 5, textoPdf('TELÉFONO: ' . $data['telefono']), 1, 1, 'L');
-        $pdf->SetFont('Arial', 'B', 9);
-        $pdf->Cell(135, 10, textoPdf('Datos del Servicio'), 0, 1, 'C');
-        $pdf->SetFont('Arial', '', 9);
-        $pdf->Cell(65, 5, textoPdf('PLACA: ' . $data['placa']), 1, 0, 'L');
-        $pdf->Cell(70, 5, textoPdf('VEHÍCULO: ' . $data['tipo']), 1, 1, 'L');
-        $pdf->Cell(65, 5, textoPdf('MODELO: ' . $data['modelo']), 1, 0, 'L');
-        $tipo = $this->model->textoTipoPrecio($data['tipo_precio']);
-        $pdf->Cell(70, 5, textoPdf($tipo . $data['cantidad']), 1, 1, 'L');
-        $pdf->Cell(65, 5, textoPdf('MONTO x ' . $tipo . $data['monto']), 1, 0, 'L');
-        $pdf->Cell(70, 5, textoPdf('ABONADO: ' . $data['abono']), 1, 1, 'L');
-        $pdf->Cell(65, 5, textoPdf('F. INICIO: ' . $data['fecha_inicio']), 1, 0, 'L');
-        $pdf->Cell(70, 5, textoPdf('F. FIN: ' . $data['fecha_fin']), 1, 1, 'L');
-        $pdf->Ln();
-        $total = $this->model->calcularSaldoPendiente($data);
-        $pdf->Cell(135, 5, textoPdf('PENDIENTE: ' . number_format($total, 2)), 0, 1, 'C');
-        $pdf->Ln();
-        $pdf->Cell(65, 5, textoPdf('_____________________________'), 0, 0, 'C');
-        $pdf->Cell(65, 5, textoPdf('_____________________________'), 0, 1, 'C');
-        $pdf->Cell(65, 5, textoPdf('Firma'), 0, 0, 'C');
-        $pdf->Cell(65, 5, textoPdf('Huella'), 0, 1, 'C');
-        $pdf->Ln(2);
-        $pdf->WriteHtml(textoPdf($empresa['mensaje']));
-
-        $pdf->Output();
+        $this->views->getView("servicios/pdf-comprobante", $data);
     }
 
-    // Reporte PDF de todos los servicios
+    // Reporte PDF de todos los servicios.
+    // El modelo prepara los datos y la vista Views/servicios/pdf-reporte.php dibuja el PDF.
     public function reporte()
     {
-        $empresa = $this->model->getEmpresa();
-        $servicios = $this->model->getServicios();
-        if (empty($servicios)) {
+        $data = $this->model->datosReporte();
+        if (empty($data['servicios'])) {
             echo 'No hay registro';
-        } else {
-            require('Libraries/fpdf/fpdf.php');
-            $pdf = new FPDF('L', 'mm', 'A4');
-            $pdf->AddPage();
-            $pdf->SetMargins(5, 0, 0);
-            $pdf->SetTitle('Reporte de Servicios', true);
-            $pdf->SetFont('Arial', '', 15);
-            $pdf->Cell(280, 8, textoPdf($empresa['nombre']), 0, 1, 'C');
-
-            $pdf->Image('Assets/img/logo.png', 250, 10, 25, 25);
-            $pdf->SetFont('Arial', '', 12);
-            $pdf->Cell(25, 5, 'Ruc: ', 0, 0, 'L');
-            $pdf->Cell(20, 5, $empresa['ruc'], 0, 1, 'L');
-            $pdf->Cell(25, 5, textoPdf('Teléfono: '), 0, 0, 'L');
-            $pdf->Cell(20, 5, $empresa['telefono'], 0, 1, 'L');
-            $pdf->Cell(25, 5, textoPdf('Correo: '), 0, 0, 'L');
-            $pdf->Cell(20, 5, textoPdf($empresa['correo']), 0, 1, 'L');
-            $pdf->Cell(25, 5, textoPdf('Dirección: '), 0, 0, 'L');
-            $pdf->Cell(20, 5, textoPdf($empresa['direccion']), 0, 1, 'L');
-            $pdf->Ln(10);
-            //Encabezado de la tabla
-            $pdf->SetFillColor(0, 0, 0);
-            $pdf->SetTextColor(255, 255, 255);
-            $pdf->SetFont('Arial', '', 12);
-            $pdf->Cell(289, 5, 'Detalle de Servicios', 1, 1, 'C', true);
-            $pdf->SetFont('Arial', '', 10);
-            $pdf->SetFillColor(155, 155, 155);
-            $pdf->SetTextColor(255, 255, 255);
-            $pdf->Cell(70, 5, 'Cliente', 1, 0, 'L', true);
-            $pdf->Cell(30, 5, 'Placa', 1, 0, 'L', true);
-            $pdf->Cell(50, 5, textoPdf('Vehículo'), 1, 0, 'L', true);
-            $pdf->Cell(35, 5, 'F. Inicio', 1, 0, 'L', true);
-            $pdf->Cell(35, 5, 'F. Fin', 1, 0, 'L', true);
-            $pdf->Cell(15, 5, 'Cant', 1, 0, 'L', true);
-            $pdf->Cell(24, 5, 'Monto', 1, 0, 'L', true);
-            $pdf->Cell(30, 5, 'Estado', 1, 1, 'L', true);
-            $pdf->SetTextColor(0, 0, 0);
-            foreach ($servicios as $row) {
-                $pdf->Cell(70, 5, textoPdf($row['nombre']), 1, 0, 'L');
-                $pdf->Cell(30, 5, $row['placa'], 1, 0, 'L');
-                $pdf->Cell(50, 5, textoPdf($row['tipo']), 1, 0, 'L');
-                $pdf->Cell(35, 5, $row['fecha_inicio'], 1, 0, 'L');
-                $pdf->Cell(35, 5, $row['fecha_fin'], 1, 0, 'L');
-                $pdf->Cell(15, 5, $row['cantidad'], 1, 0, 'C');
-                $pdf->Cell(24, 5, $row['monto'], 1, 0, 'L');
-                if ($row['estado'] == 1) {
-                    $pdf->SetTextColor(255, 0, 0);
-                } else {
-                    $pdf->SetTextColor(0, 128, 0);
-                }
-                $pdf->Cell(30, 5, $this->model->textoEstado($row['estado']), 1, 1, 'L');
-                $pdf->SetTextColor(0, 0, 0);
-            }
-            $pdf->Output();
+            return;
         }
+        $this->views->getView("servicios/pdf-reporte", $data);
     }
 }

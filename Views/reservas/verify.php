@@ -12,14 +12,6 @@
                 </ul>
             </div>
             <div class="col-md-6">
-                <?php //COMPROBAR TIPO
-                if ($data['reserva']['tipo_precio'] == 1) {
-                    $tipo = 'HORAS: ';
-                } else if ($data['reserva']['tipo_precio'] == 2) {
-                    $tipo = 'DIAS: ';
-                } else {
-                    $tipo = 'MESES: ';
-                } ?>
                 <ul class="list-group mb-3">
                     <li class="list-group-item"><b>Cliente:</b> <?php echo escapar($data['reserva']['nombre']); ?></li>
                     <li class="list-group-item"><b>Fecha de inicio:</b> <?php echo escapar($data['reserva']['f_inicio']); ?></li>
@@ -32,8 +24,8 @@
                             ? htmlspecialchars($data['reserva']['prop_nombre'] . ' - ' . $data['reserva']['prop_celular'])
                             : '<span class="text-danger">Sin dueño asignado (asígnalo en Vehículos)</span>'; ?>
                     </li>
-                    <li class="list-group-item"><b><?php echo $tipo; ?></b><?php echo escapar($data['reserva']['monto']); ?></li>
-                    <li class="list-group-item"><b>Total:</b> <?php echo number_format($data['reserva']['monto'] * $data['reserva']['cantidad'], 2); ?></li>
+                    <li class="list-group-item"><b><?php echo $data['texto_tipo']; ?></b><?php echo escapar($data['reserva']['monto']); ?></li>
+                    <li class="list-group-item"><b>Total:</b> <?php echo number_format($data['total'], 2); ?></li>
                 </ul>
                 <?php if ($data['reserva']['estado'] == 0) { ?>
                     <div class="text-end">

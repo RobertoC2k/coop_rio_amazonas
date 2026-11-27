@@ -40,6 +40,27 @@ class ReglasTransporte extends Query
     }
 
     /**
+     * Total a pagar = cantidad x precio unitario, redondeado a centavos.
+     * round(..., 2): la computadora guarda los decimales de forma aproximada
+     * (3 x 1.15 = 3.4499999999...); sin redondear, las comparaciones fallaban.
+     */
+    public function calcularTotal($cantidad, $monto)
+    {
+        return round((int) $cantidad * (float) $monto, 2);
+    }
+
+    // Etiqueta de la tarifa para pantallas y PDF (antes se calculaba en verify.php)
+    public function textoTipoPrecio($tipo)
+    {
+        if ($tipo == 1) {
+            return 'HORAS: ';
+        } else if ($tipo == 2) {
+            return 'DIAS: ';
+        }
+        return 'MESES: ';
+    }
+
+    /**
      * Devuelve el precio unitario (monto) según la tarifa y las fechas de inicio y fin
      * (fin = inicio + cantidad de horas, días o meses).
      */

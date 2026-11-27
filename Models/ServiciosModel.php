@@ -63,9 +63,9 @@ class ServiciosModel extends ReglasTransporte
         if (!preg_match('/^\d+(\.\d{1,2})?$/', $abono)) {
             return array('msg' => 'El abono debe ser un número (ejemplo: 50 o 50.25)', 'icono' => 'warning');
         }
-        // round(..., 2): la computadora guarda los decimales de forma aproximada
-        // (3 x 1.15 = 3.4499999999...). Sin redondear a centavos, un abono igual al total se rechazaba.
-        $total = round((int) $d['cantidad'] * $tarifa['monto'], 2);
+        // calcularTotal redondea a centavos (ver ReglasTransporte): sin eso, un abono
+        // igual al total se rechazaba (3 x 1.15 = 3.4499999999...)
+        $total = $this->calcularTotal($d['cantidad'], $tarifa['monto']);
         if ((float) $abono > $total) {
             return array('msg' => 'El abono no puede ser mayor al total del servicio ($' . number_format($total, 2) . ')', 'icono' => 'warning');
         }
@@ -116,22 +116,45 @@ class ServiciosModel extends ReglasTransporte
         if ($servicio['estado'] == 0) {
             return 0;
         }
-        return ($servicio['cantidad'] * $servicio['monto']) - $servicio['abono'];
-    }
-
-    public function textoTipoPrecio($tipo)
-    {
-        if ($tipo == 1) {
-            return 'HORAS: ';
-        } else if ($tipo == 2) {
-            return 'DIAS: ';
-        }
-        return 'MESES: ';
+        return round($this->calcularTotal($servicio['cantidad'], $servicio['monto']) - $servicio['abono'], 2);
     }
 
     public function textoEstado($estado)
     {
         return ($estado == 1) ? 'En curso' : 'Finalizado';
+    }
+
+    /**
+     * Datos listos para el comprobante PDF de un servicio (Views/servicios/pdf-comprobante.php).
+     * El modelo prepara textos y cálculos; la vista solo dibuja el PDF.
+     * Devuelve null si el servicio no existe.
+     */
+    public function datosComprobante(int $id)
+    {
+        $servicio = $this->getServicio($id);
+        if (empty($servicio)) {
+            return null;
+        }
+        return array(
+            'empresa'     => $this->getEmpresa(),
+            'servicio'    => $servicio,
+            'texto_estado' => $this->textoEstado($servicio['estado']),
+            'texto_tipo'  => $this->textoTipoPrecio($servicio['tipo_precio']),
+            'pendiente'   => $this->calcularSaldoPendiente($servicio),
+        );
+    }
+
+    /**
+     * Datos listos para el reporte PDF de todos los servicios (Views/servicios/pdf-reporte.php).
+     * Cada servicio lleva ya su texto de estado. 'servicios' viene vacío si no hay registros.
+     */
+    public function datosReporte()
+    {
+        $servicios = $this->getServicios();
+        foreach ($servicios as $i => $row) {
+            $servicios[$i]['texto_estado'] = $this->textoEstado($row['estado']);
+        }
+        return array('empresa' => $this->getEmpresa(), 'servicios' => $servicios);
     }
 
     /* =========================================================
