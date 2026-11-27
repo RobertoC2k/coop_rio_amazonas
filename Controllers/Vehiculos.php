@@ -20,6 +20,7 @@ class Vehiculos extends Controller
     {
         $data['marcas'] = $this->model->getDatos('marcas');
         $data['tipos'] = $this->model->getDatos('tipos');
+        $data['propietarios'] = $this->model->getDatos('propietarios');
         $this->views->getView("vehiculos/index", $data);
     }
 
@@ -41,7 +42,7 @@ class Vehiculos extends Controller
     public function registrar()
     {
         // 1. Recibir datos de la vista
-        $campos = array('id', 'placa', 'marca', 'tipo', 'modelo', 'precio_hora', 'precio_dia', 'precio_mes',
+        $campos = array('id', 'propietario', 'placa', 'marca', 'tipo', 'modelo', 'precio_hora', 'precio_dia', 'precio_mes',
             'kilometraje', 'transmision', 'asientos', 'peso_carga_max', 'combustible');
         $datos = array();
         foreach ($campos as $campo) {

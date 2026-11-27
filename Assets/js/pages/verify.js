@@ -17,9 +17,19 @@ document.addEventListener('DOMContentLoaded', function () {
                                 const res = JSON.parse(this.responseText);
                                 if (res.icono == 'success') {
                                     alertify.success(res.msg);
-                                    setTimeout(() => {
-                                        window.location.reload();
-                                    }, 1500);
+                                    if (res.whatsapp) {
+                                        // El clic en "Aceptar" permite abrir WhatsApp sin que el navegador lo bloquee
+                                        alertify.confirm("Reserva aprobada. ¿Enviar ahora el WhatsApp al dueño del vehículo?", function (ok) {
+                                            if (ok) {
+                                                window.open(res.whatsapp, '_blank');
+                                            }
+                                            window.location.reload();
+                                        });
+                                    } else {
+                                        setTimeout(() => {
+                                            window.location.reload();
+                                        }, 1500);
+                                    }
                                 } else {
                                     alertify.error(res.msg);
                                 }

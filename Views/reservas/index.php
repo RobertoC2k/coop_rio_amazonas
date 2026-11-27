@@ -83,8 +83,14 @@
                             </div>
                         </div>
                         <div class="col-md-12">
+                            <div class="form-floating mb-3">
+                                <textarea id="direccion_trabajo" class="form-control" name="direccion_trabajo" style="height: 80px" maxlength="255" placeholder="Dirección del trabajo"></textarea>
+                                <label for="direccion_trabajo">Dirección / punto del trabajo <span class="text-danger fw-bold">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
                             <div class="form-group mb-3">
-                                <textarea id="observacion" class="form-control" name="observacion" rows="3" placeholder="Observación"></textarea>
+                                <textarea id="observacion" class="form-control" name="observacion" rows="3" placeholder="Observación (detalle del trabajo, referencias)"></textarea>
                             </div>
                         </div>
                     </div>

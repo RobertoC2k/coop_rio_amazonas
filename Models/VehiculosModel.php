@@ -25,12 +25,16 @@ class VehiculosModel extends Query
     public function guardar(array $d, $archivo, $conservarFoto)
     {
         // 1. Campos obligatorios
-        $obligatorios = array('placa', 'marca', 'tipo', 'modelo', 'precio_hora', 'precio_dia', 'precio_mes',
+        $obligatorios = array('propietario', 'placa', 'marca', 'tipo', 'modelo', 'precio_hora', 'precio_dia', 'precio_mes',
             'kilometraje', 'transmision', 'asientos', 'peso_carga_max', 'combustible');
         foreach ($obligatorios as $campo) {
             if (empty($d[$campo])) {
                 return array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
             }
+        }
+        // El dueño debe existir y estar activo (recibe los avisos de las reservas)
+        if (!$this->propietarioActivo($d['propietario'])) {
+            return array('msg' => 'Selecciona un dueño válido', 'icono' => 'warning');
         }
 
         // 2. Precios mayores a 0 y asientos como número entero positivo
@@ -70,7 +74,8 @@ class VehiculosModel extends Query
         // 5. Guardar en la base de datos
         $valores = array(
             $d['placa'], $d['precio_hora'], $d['precio_dia'], $d['precio_mes'], $d['modelo'], $d['kilometraje'],
-            $d['transmision'], $d['asientos'], $d['peso_carga_max'], $d['combustible'], $foto, $d['tipo'], $d['marca']
+            $d['transmision'], $d['asientos'], $d['peso_carga_max'], $d['combustible'], $foto, $d['tipo'], $d['marca'],
+            $d['propietario']
         );
         $ok = ($id > 0) ? $this->modificarVehiculo($valores, $id) : $this->registrarVehiculo($valores);
         if ($ok != 1) {
@@ -136,7 +141,7 @@ class VehiculosModel extends Query
     {
         // El nombre de una tabla no puede ir en un "?", por eso solo se aceptan
         // las tablas de esta lista (lista blanca).
-        if (!in_array($table, array('marcas', 'tipos'))) {
+        if (!in_array($table, array('marcas', 'tipos', 'propietarios'))) {
             return array();
         }
         $sql = "SELECT * FROM $table WHERE estado = 1";
@@ -168,19 +173,24 @@ class VehiculosModel extends Query
         return !empty($this->select($sql, array($placa, $id)));
     }
 
+    private function propietarioActivo($id)
+    {
+        return !empty($this->select("SELECT id FROM propietarios WHERE id = ? AND estado = 1", array($id)));
+    }
+
     // $valores: placa, precios (hora, día, mes), modelo, kilometraje, transmisión,
-    // asientos, peso de carga máx., combustible, foto, id_tipo, id_marca
+    // asientos, peso de carga máx., combustible, foto, id_tipo, id_marca, id_propietario
     public function registrarVehiculo(array $valores)
     {
         $sql = "INSERT INTO vehiculos(placa, precio_hora, precio_dia, precio_mes, modelo, kilometraje, transmision,
-                asientos, peso_carga_max, combustible, foto, id_tipo, id_marca) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                asientos, peso_carga_max, combustible, foto, id_tipo, id_marca, id_propietario) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         return $this->save($sql, $valores);
     }
 
     public function modificarVehiculo(array $valores, int $id)
     {
         $sql = "UPDATE vehiculos SET placa=?, precio_hora=?, precio_dia=?, precio_mes=?, modelo=?, kilometraje=?, transmision=?,
-                asientos=?, peso_carga_max=?, combustible=?, foto=?, id_tipo=?, id_marca=? WHERE id = ?";
+                asientos=?, peso_carga_max=?, combustible=?, foto=?, id_tipo=?, id_marca=?, id_propietario=? WHERE id = ?";
         $valores[] = $id;
         return $this->save($sql, $valores);
     }

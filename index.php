@@ -18,6 +18,10 @@
 // 1. Configuración global: base_url, datos de conexión a la BD y SMTP
 require_once 'Config/Config.php';
 
+// Hora de Ecuador para todas las fechas del sistema (reservas, validación de fechas
+// pasadas, eventos de calendario). Sin esto PHP usaba la zona de su instalación (Europe/Berlin).
+date_default_timezone_set('America/Guayaquil');
+
 // 2. Separar la URL en partes. Si no hay URL se muestra la página pública de inicio.
 //    "vehiculos/editar/5" -> ["vehiculos", "editar", "5"]
 $ruta = !empty($_GET['url']) ? $_GET['url'] : "major/index";

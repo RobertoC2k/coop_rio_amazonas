@@ -39,6 +39,11 @@ class Reservas extends Controller
 
     public function solicitar()
     {
+        // Solo un cliente (tipo 2) solicita reservas: el id de sesión se guarda como id_cliente
+        if ($_SESSION['tipo'] != 2) {
+            echo json_encode(array('msg' => 'Solo los clientes pueden solicitar reservas', 'icono' => 'warning'), JSON_UNESCAPED_UNICODE);
+            die();
+        }
         // 1. Recibir datos de la vista
         $datos = array(
             'id_cli'      => $_SESSION['id_usuario'],
@@ -47,7 +52,8 @@ class Reservas extends Controller
             'precios'     => strClean($_POST['precios']),
             'fecha'       => strClean($_POST['fecha']),
             'hora'        => strClean($_POST['hora']),
-            'observacion' => strClean($_POST['observacion'])
+            'observacion' => strClean($_POST['observacion']),
+            'direccion_trabajo' => strClean($_POST['direccion_trabajo'])
         );
         // 2. El modelo valida, calcula la tarifa, verifica disponibilidad y guarda
         $msg = $this->model->solicitar($datos);
@@ -62,13 +68,16 @@ class Reservas extends Controller
             header("location: " . base_url . 'login');
             exit;
         }
-        $data['reserva'] = $this->model->getReserva($id);
+        // Reserva con datos del cliente, del vehículo y de su dueño
+        $data['reserva'] = $this->model->getDetalleReserva($id);
         if (empty($data['reserva'])) {
             header("location: " . base_url . 'errors');
             exit;
         }
         $data['vehiculo'] = $this->model->getVehiculo($data['reserva']['id_vehiculo']);
         $data['motivos'] = $this->model->motivosRechazo();
+        $data['duracion'] = $this->model->textoDuracion($data['reserva']['cantidad'], $data['reserva']['tipo_precio']);
+        $data['whatsapp'] = $this->model->enlaceWhatsapp($data['reserva']);
         $this->views->getView("reservas/verify", $data);
     }
 

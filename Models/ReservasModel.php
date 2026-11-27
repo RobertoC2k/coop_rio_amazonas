@@ -2,7 +2,8 @@
 /**
  * Modelo de Reservas (solicitud de turno).
  * Una reserva es la solicitud que hace un cliente para usar un vehículo
- * durante un periodo (f_inicio a f_fin). El personal la aprueba o la rechaza indicando el motivo.
+ * durante un periodo (f_inicio a f_fin) en un punto de trabajo. El personal la aprueba
+ * (se avisa al cliente y al dueño del vehículo) o la rechaza indicando el motivo.
  * Estados: 0 = Pendiente, 1 = Aprobada, 2 = Rechazada.
  */
 class ReservasModel extends Query
@@ -29,6 +30,10 @@ class ReservasModel extends Query
             || empty($d['precios']) || empty($d['fecha']) || empty($d['hora'])
         ) {
             return array('msg' => 'Todo los campos con * son requeridos', 'icono' => 'warning');
+        }
+        // El vehículo debe saber a dónde ir: la dirección del trabajo es obligatoria
+        if (strlen(trim($d['direccion_trabajo'])) < 5) {
+            return array('msg' => 'Indica la dirección o punto del trabajo', 'icono' => 'warning');
         }
 
         // 2. Cantidad positiva y tarifa válida (1 = hora, 2 = día, 3 = mes)
@@ -60,7 +65,7 @@ class ReservasModel extends Query
         // 7. Guardar (la reserva nace en estado 0 = Pendiente)
         $id = $this->registrarReserva(
             $tarifa['inicio'], $tarifa['fin'], $d['cantidad'], $d['precios'], $tarifa['monto'],
-            date('Y-m-d H:i:s'), $d['observacion'], $d['id_veh'], $d['id_cli']
+            date('Y-m-d H:i:s'), $d['observacion'], $d['direccion_trabajo'], $d['id_veh'], $d['id_cli']
         );
         if ($id > 0) {
             return array('msg' => 'Reserva solicitada', 'icono' => 'success', 'id_reserva' => $id);
@@ -193,38 +198,189 @@ class ReservasModel extends Query
     }
 
     /**
-     * Aprueba la reserva (estado 1) y, si el cliente tiene correo, le avisa.
+     * Aprueba la reserva (estado 1) y avisa:
+     *  - al cliente: correo de confirmación con el evento de calendario (.ics);
+     *  - al dueño del vehículo: correo con los datos del trabajo y el evento de calendario.
+     * El WhatsApp al dueño se envía desde la pantalla de la reserva (botón), con el enlace
+     * que arma enlaceWhatsapp(). Si un correo falla, la reserva queda aprobada igual.
      */
     public function aprobar($idReserva)
     {
-        // Solo se aprueba una reserva que sigue pendiente
+        // 1. Solo se aprueba una reserva que sigue pendiente
         $pendiente = $this->getReserva($idReserva);
         if (empty($pendiente) || $pendiente['estado'] != 0) {
             return array('msg' => 'La reserva no existe o ya fue respondida', 'icono' => 'warning');
         }
+        // 2. Cambiar el estado
         if ($this->actualizarEstado(1, $idReserva) != 1) {
             return array('msg' => 'Error al aprobar', 'icono' => 'error');
         }
-        $reserva = $this->getReserva($idReserva);
-        if (empty($reserva['correo'])) {
-            return array('msg' => 'Solicitud aprobada', 'icono' => 'success');
+        // 3. Notificar por correo y armar el resumen para el usuario
+        $r = $this->getDetalleReserva($idReserva);
+        $avisos = array();
+        if (!empty($r['correo'])) {
+            $avisos[] = $this->notificarCliente($r) ? 'correo al cliente enviado' : 'no se pudo enviar el correo al cliente';
         }
-        if ($this->notificarAprobacion($reserva)) {
-            return array('msg' => 'Solicitud aprobada y correo enviado', 'icono' => 'success');
+        if (!empty($r['prop_correo'])) {
+            $avisos[] = $this->notificarPropietario($r) ? 'correo al dueño enviado' : 'no se pudo enviar el correo al dueño';
+        } else {
+            $avisos[] = 'el vehículo no tiene dueño asignado';
         }
-        // La reserva SÍ quedó aprobada; solo falló el aviso por correo.
-        return array('msg' => 'Solicitud aprobada (no se pudo enviar el correo al cliente)', 'icono' => 'success');
+        return array(
+            'msg' => 'Solicitud aprobada (' . implode(', ', $avisos) . ')',
+            'icono' => 'success',
+            'whatsapp' => $this->enlaceWhatsapp($r)
+        );
     }
 
-    // Envía el correo de confirmación al cliente. Devuelve true si se envió.
-    private function notificarAprobacion($reserva)
+    // Correo de confirmación al cliente, con el evento para su calendario
+    private function notificarCliente($r)
     {
         $empresa = $this->getEmpresa();
-        $cuerpo = 'Confirmamos que tu solicitud de reserva del ' . $reserva['f_inicio']
-            . ' al ' . $reserva['f_fin'] . ' ha sido aprobada.';
-        // Las respuestas del cliente llegan al correo de la cooperativa
-        return Correo::enviar($reserva['correo'], $reserva['nombre'], 'Solicitud de reserva', $cuerpo,
-            $empresa['nombre'], $empresa['correo'], $empresa['nombre']);
+        $cuerpo = '<p>Hola ' . htmlspecialchars($r['nombre']) . ',</p>'
+            . '<p>Tu reserva fue <b>aprobada</b>. Estos son los datos:</p>'
+            . $this->tablaDetalle($r, false)
+            . '<p>Adjuntamos el evento para que lo agregues a tu calendario.</p>';
+        $ics = $this->generarIcs($r, 'Reserva ' . $r['tipo'] . ' ' . $r['placa'] . ' - ' . $empresa['nombre']);
+        return Correo::enviar($r['correo'], $r['nombre'], 'Reserva aprobada', $cuerpo,
+            $empresa['nombre'], $empresa['correo'], $empresa['nombre'],
+            array(array('contenido' => $ics, 'nombre' => 'reserva-' . $r['id'] . '.ics', 'tipo' => 'text/calendar; charset=utf-8; method=PUBLISH')));
+    }
+
+    // Correo al dueño del vehículo con los datos del trabajo y el evento de calendario
+    private function notificarPropietario($r)
+    {
+        $empresa = $this->getEmpresa();
+        $cuerpo = '<p>Hola ' . htmlspecialchars($r['prop_nombre']) . ',</p>'
+            . '<p>Se aprobó una reserva de tu vehículo <b>' . htmlspecialchars($r['placa']) . '</b>:</p>'
+            . $this->tablaDetalle($r, true)
+            . '<p>Adjuntamos el evento para tu calendario.</p>';
+        $ics = $this->generarIcs($r, 'Trabajo ' . $r['placa'] . ' - ' . $r['nombre']);
+        return Correo::enviar($r['prop_correo'], $r['prop_nombre'], 'Nueva reserva aprobada - ' . $r['placa'], $cuerpo,
+            $empresa['nombre'], $empresa['correo'], $empresa['nombre'],
+            array(array('contenido' => $ics, 'nombre' => 'reserva-' . $r['id'] . '.ics', 'tipo' => 'text/calendar; charset=utf-8; method=PUBLISH')));
+    }
+
+    // Tabla HTML con el detalle de la reserva. Al dueño se le incluyen los datos de contacto del cliente.
+    private function tablaDetalle($r, $paraPropietario)
+    {
+        $filas = array(
+            'Vehículo'  => $r['tipo'] . ' ' . $r['marca'] . ' - ' . $r['placa'],
+            'Fecha'     => date('d/m/Y', strtotime($r['f_inicio'])),
+            'Hora'      => date('H:i', strtotime($r['f_inicio'])),
+            'Duración'  => $this->textoDuracion($r['cantidad'], $r['tipo_precio']) . ' (hasta ' . date('d/m/Y H:i', strtotime($r['f_fin'])) . ')',
+            'Punto de trabajo' => $r['direccion_trabajo'],
+            'Detalle'   => $r['observacion']
+        );
+        if ($paraPropietario) {
+            $filas['Cliente'] = $r['nombre'] . ' - Tel: ' . $r['codphone'] . ' ' . $r['telefono'];
+        }
+        $html = '<table cellpadding="6" style="border-collapse:collapse">';
+        foreach ($filas as $titulo => $valor) {
+            $html .= '<tr><td style="border:1px solid #ddd"><b>' . $titulo . '</b></td>'
+                . '<td style="border:1px solid #ddd">' . nl2br(htmlspecialchars((string) $valor)) . '</td></tr>';
+        }
+        return $html . '</table>';
+    }
+
+    // "3 días", "1 hora", "2 meses"
+    public function textoDuracion($cantidad, $tipoPrecio)
+    {
+        $unidades = array(1 => array('hora', 'horas'), 2 => array('día', 'días'), 3 => array('mes', 'meses'));
+        $u = $unidades[$tipoPrecio];
+        return $cantidad . ' ' . ($cantidad == 1 ? $u[0] : $u[1]);
+    }
+
+    /**
+     * Evento de calendario en formato iCalendar (.ics), compatible con Google Calendar,
+     * Outlook y el calendario del celular. Las horas se convierten a UTC (sufijo Z).
+     * Incluye un recordatorio 1 hora antes.
+     */
+    public function generarIcs($r, $titulo)
+    {
+        $utc = function ($fecha) {
+            $d = new DateTime($fecha, new DateTimeZone(date_default_timezone_get()));
+            return $d->setTimezone(new DateTimeZone('UTC'))->format('Ymd\THis\Z');
+        };
+        $descripcion = 'Vehículo: ' . $r['tipo'] . ' ' . $r['marca'] . ' - ' . $r['placa'] . "\n"
+            . 'Duración: ' . $this->textoDuracion($r['cantidad'], $r['tipo_precio']) . "\n"
+            . 'Cliente: ' . $r['nombre'] . ' - Tel: ' . $r['codphone'] . ' ' . $r['telefono'] . "\n"
+            . 'Detalle: ' . $r['observacion'];
+        $lineas = array(
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//Cooperativa Rio Amazonas//Reservas//ES',
+            'CALSCALE:GREGORIAN',
+            'METHOD:PUBLISH',
+            'BEGIN:VEVENT',
+            'UID:reserva-' . $r['id'] . '@coop-rio-amazonas',
+            'DTSTAMP:' . $utc('now'),
+            'DTSTART:' . $utc($r['f_inicio']),
+            'DTEND:' . $utc($r['f_fin']),
+            'SUMMARY:' . $this->textoIcs($titulo),
+            'DESCRIPTION:' . $this->textoIcs($descripcion),
+            'LOCATION:' . $this->textoIcs((string) $r['direccion_trabajo']),
+            'STATUS:CONFIRMED',
+            'BEGIN:VALARM',
+            'TRIGGER:-PT1H',
+            'ACTION:DISPLAY',
+            'DESCRIPTION:Recordatorio de reserva',
+            'END:VALARM',
+            'END:VEVENT',
+            'END:VCALENDAR'
+        );
+        // El formato exige líneas de máximo 75 bytes: las largas continúan con un espacio
+        $salida = '';
+        foreach ($lineas as $linea) {
+            while (strlen($linea) > 75) {
+                $parte = mb_strcut($linea, 0, 75, 'UTF-8');
+                $salida .= $parte . "\r\n ";
+                $linea = substr($linea, strlen($parte));
+            }
+            $salida .= $linea . "\r\n";
+        }
+        return $salida;
+    }
+
+    // Escapa los caracteres especiales del formato iCalendar
+    private function textoIcs($texto)
+    {
+        return str_replace(array('\\', ';', ',', "\r\n", "\n"), array('\\\\', '\;', '\,', '\n', '\n'), $texto);
+    }
+
+    /**
+     * Enlace "click to chat" de WhatsApp al celular del dueño, con el mensaje ya escrito.
+     * Devuelve '' si el vehículo no tiene dueño o el dueño no tiene celular.
+     */
+    public function enlaceWhatsapp($r)
+    {
+        if (empty($r['prop_celular'])) {
+            return '';
+        }
+        $numero = $this->numeroInternacional($r['prop_celular']);
+        $mensaje = "*Reserva aprobada*\n"
+            . 'Vehículo: ' . $r['tipo'] . ' ' . $r['marca'] . ' - ' . $r['placa'] . "\n"
+            . 'Fecha: ' . date('d/m/Y', strtotime($r['f_inicio'])) . "\n"
+            . 'Hora: ' . date('H:i', strtotime($r['f_inicio'])) . "\n"
+            . 'Duración: ' . $this->textoDuracion($r['cantidad'], $r['tipo_precio'])
+            . ' (hasta ' . date('d/m/Y H:i', strtotime($r['f_fin'])) . ")\n"
+            . 'Punto de trabajo: ' . $r['direccion_trabajo'] . "\n"
+            . 'Cliente: ' . $r['nombre'] . ' - Tel: ' . trim($r['codphone'] . ' ' . $r['telefono']) . "\n"
+            . 'Detalle: ' . $r['observacion'];
+        return 'https://wa.me/' . $numero . '?text=' . rawurlencode($mensaje);
+    }
+
+    // WhatsApp necesita el número con código de país (Ecuador 593) y sin el 0 inicial
+    private function numeroInternacional($celular)
+    {
+        $numero = preg_replace('/\D/', '', $celular);
+        if (strlen($numero) == 10 && $numero[0] == '0') {
+            return '593' . substr($numero, 1);      // 0987654321 -> 593987654321
+        }
+        if (strlen($numero) == 9) {
+            return '593' . $numero;                 // 987654321  -> 593987654321
+        }
+        return $numero;                             // ya viene con código de país
     }
 
     /* =========================================================
@@ -253,10 +409,10 @@ class ReservasModel extends Query
         return $this->select($sql, array($id));
     }
 
-    public function registrarReserva($fecha, $fecha_devolucion, $cantidad, $tipo, $monto, $fecha_reserva, $observacion, $id_veh, $id_cli)
+    public function registrarReserva($fecha, $fecha_devolucion, $cantidad, $tipo, $monto, $fecha_reserva, $observacion, $direccion, $id_veh, $id_cli)
     {
-        $sql = "INSERT INTO reservas(f_inicio, f_fin, cantidad, tipo_precio, monto, f_reserva, observacion, id_vehiculo, id_cliente) VALUES (?,?,?,?,?,?,?,?,?)";
-        $datos = array($fecha, $fecha_devolucion, $cantidad, $tipo, $monto, $fecha_reserva, $observacion, $id_veh, $id_cli);
+        $sql = "INSERT INTO reservas(f_inicio, f_fin, cantidad, tipo_precio, monto, f_reserva, observacion, direccion_trabajo, id_vehiculo, id_cliente) VALUES (?,?,?,?,?,?,?,?,?,?)";
+        $datos = array($fecha, $fecha_devolucion, $cantidad, $tipo, $monto, $fecha_reserva, $observacion, $direccion, $id_veh, $id_cli);
         $data = $this->insertar($sql, $datos);
         return ($data > 0) ? $data : 0;
     }
@@ -273,6 +429,21 @@ class ReservasModel extends Query
         return $this->select($sql, array($id));
     }
 
+    // Reserva con los datos del cliente, del vehículo y de su dueño (para la pantalla y los avisos)
+    public function getDetalleReserva($id)
+    {
+        $sql = "SELECT r.*, c.nombre, c.correo, c.codphone, c.telefono,
+                       v.placa, v.modelo, v.foto, t.tipo, m.marca,
+                       p.nombre AS prop_nombre, p.correo AS prop_correo, p.celular AS prop_celular
+                FROM reservas r
+                INNER JOIN clientes c ON r.id_cliente = c.id
+                INNER JOIN vehiculos v ON r.id_vehiculo = v.id
+                INNER JOIN tipos t ON v.id_tipo = t.id
+                INNER JOIN marcas m ON v.id_marca = m.id
+                LEFT JOIN propietarios p ON v.id_propietario = p.id
+                WHERE r.id = ?";
+        return $this->select($sql, array($id));
+    }
 
     public function actualizarEstado($estado, $id)
     {

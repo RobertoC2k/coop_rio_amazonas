@@ -17,8 +17,10 @@ class Correo
      * - $responderA: correo al que se contestará (p. ej. el visitante que escribió
      *   en Contacto). El remitente siempre es la cuenta SMTP de la cooperativa,
      *   porque el servidor de correo rechaza remitentes que no son suyos.
+     * - $adjuntos: archivos generados en memoria, cada uno como
+     *   array('contenido' => ..., 'nombre' => 'reserva.ics', 'tipo' => 'text/calendar').
      */
-    public static function enviar($para, $nombrePara, $asunto, $cuerpoHtml, $nombreRemitente, $responderA = null, $nombreResponder = '')
+    public static function enviar($para, $nombrePara, $asunto, $cuerpoHtml, $nombreRemitente, $responderA = null, $nombreResponder = '', $adjuntos = array())
     {
         $mail = new PHPMailer(true);
         try {
@@ -36,6 +38,10 @@ class Correo
             $mail->addAddress($para, $nombrePara);
             if (!empty($responderA)) {
                 $mail->addReplyTo($responderA, $nombreResponder);
+            }
+
+            foreach ($adjuntos as $adjunto) {
+                $mail->addStringAttachment($adjunto['contenido'], $adjunto['nombre'], PHPMailer::ENCODING_BASE64, $adjunto['tipo']);
             }
 
             $mail->isHTML(true);

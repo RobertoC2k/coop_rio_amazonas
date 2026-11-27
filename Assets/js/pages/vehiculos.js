@@ -52,7 +52,7 @@ function frmVehiculo() {
 }
 function registrarVeh(e) {
     e.preventDefault();
-    if (frm.placa.value == '' || frm.marca.value == '' || frm.tipo.value == '' || frm.modelo.value == ''
+    if (frm.propietario.value == '' || frm.placa.value == '' || frm.marca.value == '' || frm.tipo.value == '' || frm.modelo.value == ''
         || frm.precio_hora.value == '' || frm.precio_dia.value == '' || frm.precio_mes.value == ''
         || frm.kilometraje.value == '' || frm.transmision.value == '' || frm.asientos.value == ''
         || frm.peso_carga_max.value == '' || frm.combustible.value == '') {
@@ -96,6 +96,7 @@ function btnEditarVeh(id) {
             const res = JSON.parse(this.responseText);
             document.getElementById("id").value = res.id;
             frm.placa.value = res.placa;
+            frm.propietario.value = res.id_propietario ?? '';
             frm.marca.value = res.id_marca;
             frm.tipo.value = res.id_tipo;
             frm.modelo.value = res.modelo;

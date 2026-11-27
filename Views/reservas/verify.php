@@ -24,7 +24,14 @@
                     <li class="list-group-item"><b>Cliente:</b> <?php echo $data['reserva']['nombre']; ?></li>
                     <li class="list-group-item"><b>Fecha de inicio:</b> <?php echo $data['reserva']['f_inicio']; ?></li>
                     <li class="list-group-item"><b>Fecha de fin:</b> <?php echo $data['reserva']['f_fin']; ?></li>
+                    <li class="list-group-item"><b>Duración:</b> <?php echo $data['duracion']; ?></li>
+                    <li class="list-group-item"><b>Punto de trabajo:</b> <?php echo htmlspecialchars((string) $data['reserva']['direccion_trabajo']); ?></li>
                     <li class="list-group-item"><b>Observaciones:</b> <?php echo $data['reserva']['observacion']; ?></li>
+                    <li class="list-group-item"><b>Dueño del vehículo:</b>
+                        <?php echo $data['reserva']['prop_nombre']
+                            ? htmlspecialchars($data['reserva']['prop_nombre'] . ' - ' . $data['reserva']['prop_celular'])
+                            : '<span class="text-danger">Sin dueño asignado (asígnalo en Vehículos)</span>'; ?>
+                    </li>
                     <li class="list-group-item"><b><?php echo $tipo; ?></b><?php echo $data['reserva']['monto']; ?></li>
                     <li class="list-group-item"><b>Total:</b> <?php echo number_format($data['reserva']['monto'] * $data['reserva']['cantidad'], 2); ?></li>
                 </ul>
@@ -34,7 +41,14 @@
                         <button class="btn btn-primary" type="button" id="btnAprobar">Aprobar</button>
                     </div>
                 <?php } else if ($data['reserva']['estado'] == 1) { ?>
-                    <div class="alert alert-success mb-0">Reserva <b>aprobada</b>.</div>
+                    <div class="alert alert-success">Reserva <b>aprobada</b>.</div>
+                    <?php if ($data['whatsapp'] != '') { ?>
+                        <div class="text-end">
+                            <a class="btn btn-success" href="<?php echo htmlspecialchars($data['whatsapp']); ?>" target="_blank">
+                                <i class="fab fa-whatsapp"></i> Enviar WhatsApp al dueño
+                            </a>
+                        </div>
+                    <?php } ?>
                 <?php } else { ?>
                     <div class="alert alert-secondary mb-0">
                         Reserva <b>rechazada</b>.<br>

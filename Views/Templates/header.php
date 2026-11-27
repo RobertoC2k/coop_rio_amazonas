@@ -185,6 +185,7 @@
                                 <li class="nav-item"><a class="nav-link" href="<?php echo base_url . 'marcas'; ?>">Marcas</a></li>
                                 <li class="nav-item"><a class="nav-link" href="<?php echo base_url . 'tipos'; ?>">Tipos</a></li>
                                 <li class="nav-item"><a class="nav-link" href="<?php echo base_url . 'vehiculos'; ?>">Vehiculos</a></li>
+                                <li class="nav-item"><a class="nav-link" href="<?php echo base_url . 'propietarios'; ?>">Dueños</a></li>
                             </ul>
                         </div>
                     </li>

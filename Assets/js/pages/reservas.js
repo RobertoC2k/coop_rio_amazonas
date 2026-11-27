@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     frmReserva.addEventListener('submit', function (e) {
         e.preventDefault();
-        if (idVehiculo.value == '' || fecha.value == '' || hora.value == '') {
+        if (idVehiculo.value == '' || fecha.value == '' || hora.value == ''
+            || document.querySelector('#direccion_trabajo').value.trim() == '') {
             alertify.error("Todo los campos son requeridos");
         } else {
             const url = base_url + "reservas/solicitar";

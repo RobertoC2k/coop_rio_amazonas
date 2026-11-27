@@ -55,6 +55,19 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="El dueño recibe los avisos de las reservas aprobadas">
+                                <select id="propietario" class="form-control" name="propietario" required>
+                                    <option value="">Seleccionar</option>
+                                    <?php foreach ($data['propietarios'] as $row) { ?>
+                                        <option value="<?php echo $row['id']; ?>"><?php echo $row['nombre'] . ' - ' . $row['cedula']; ?></option>
+                                    <?php } ?>
+                                </select>
+                                <label for="propietario">Dueño del vehículo <span class="text-danger fw-bold">*</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-floating mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="La placa es requerido">
                                 <input type="hidden" id="id" name="id">
