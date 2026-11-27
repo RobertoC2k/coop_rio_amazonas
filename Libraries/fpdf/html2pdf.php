@@ -42,7 +42,7 @@ protected $B;
 protected $I;
 protected $U;
 protected $HREF;
-protected $fontList;
+protected $fontlist;
 protected $issetfont;
 protected $issetcolor;
 

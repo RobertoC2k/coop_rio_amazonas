@@ -52,6 +52,15 @@ function escaparFilas(array $filas)
     return $filas;
 }
 
+// Texto para FPDF. Las fuentes de FPDF (Arial, etc.) usan la codificación Windows-1252,
+// y el sistema guarda en UTF-8: sin convertir, "Teléfono" saldría como "TelÃ©fono".
+// Reemplaza a utf8_decode(), que es obsoleta desde PHP 8.2: su aviso se imprimía antes
+// del PDF y FPDF se negaba a generarlo ("Some data has already been output").
+function textoPdf($texto)
+{
+    return mb_convert_encoding((string) $texto, 'Windows-1252', 'UTF-8');
+}
+
 // Plantillas del panel interno. Cada vista llama a cargarHeader() en su primera línea
 // y a cargarFooter() al final. Según el rol de la sesión se usa:
 //   tipo 1 (personal) -> Templates/header.php y footer.php (menú de administración)
