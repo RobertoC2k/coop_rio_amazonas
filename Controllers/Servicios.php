@@ -85,6 +85,11 @@ class Servicios extends Controller
     {
         $empresa = $this->model->getEmpresa();
         $data = $this->model->getServicio($id);
+        // Servicio inexistente (ej. servicios/pdfServicio/999): página de error en vez de un PDF roto
+        if (empty($data)) {
+            header('Location: ' . base_url . 'errors');
+            exit;
+        }
         require('Libraries/fpdf/html2pdf.php');
 
         $pdf = new PDF_HTML('P', 'mm', array(210, 148));

@@ -46,7 +46,17 @@ if ($nombreValido && file_exists($dirControllers)) {
     $objeto = new $controller();     // el constructor valida sesión/rol y carga el modelo
     // Solo se pueden llamar desde la URL los métodos públicos y que no sean internos de PHP (__construct, etc.)
     if (is_callable(array($objeto, $metodo)) && strpos($metodo, '__') !== 0) {
-        $objeto->$metodo($parametro);
+        try {
+            $objeto->$metodo($parametro);
+        } catch (TypeError $e) {
+            // El parámetro de la URL no es del tipo que espera el método
+            // (ej. clientes/editar/abc cuando editar() pide un número entero).
+            // Antes se mostraba un error fatal con rutas internas del servidor;
+            // ahora se registra en el log de PHP y el usuario ve la página de error.
+            error_log('URL inválida "' . $ruta . '": ' . $e->getMessage());
+            header('Location: ' . base_url . 'errors');
+            exit;
+        }
     } else {
         header('Location: ' . base_url . 'errors');
         exit;

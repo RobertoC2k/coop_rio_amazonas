@@ -19,6 +19,11 @@ class Cars extends Controller
         $id = $valor;
         $data['active'] = 'cars';
         $data['vehiculo'] = $this->model->getVehiculo($id);
+        // Vehículo inexistente (ej. cars/single/999): página de error en vez de avisos de PHP
+        if (empty($data['vehiculo'])) {
+            header('Location: ' . base_url . 'errors');
+            exit;
+        }
         $data['title'] = 'Detalle';
         $data['detail'] = $data['vehiculo']['tipo'];
         $this->views->getView("car-single", $data);
