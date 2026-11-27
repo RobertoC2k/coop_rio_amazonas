@@ -30,6 +30,12 @@ function strClean($cadena)
     return $string;
 }
 
+// Plantillas del panel interno. Cada vista llama a cargarHeader() en su primera línea
+// y a cargarFooter() al final. Según el rol de la sesión se usa:
+//   tipo 1 (personal) -> Templates/header.php y footer.php (menú de administración)
+//   tipo 2 (cliente)  -> Templates/header-cliente.php y footer-cliente.php
+// Las páginas públicas (Views/index.php, about.php, cars.php...) incluyen directamente
+// Templates/header1.php, portada.php y footer1.php.
 function cargarHeader($tipo) {
     if ($tipo == 1) {
         include "Views/Templates/header.php";

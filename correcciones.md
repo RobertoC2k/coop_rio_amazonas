@@ -12,7 +12,7 @@ El tutor detectó inconsistencias entre lo documentado (patrón MVC) y la implem
 - [x] **Separación estricta de responsabilidades en MVC (Modelo vs. Controlador):**
   - **Problema:** Actualmente los modelos (`models/`) solo contienen la conexión/consultas básicas a la base de datos, mientras que toda la lógica de negocio está concentrada en los controladores (`controllers/`).
   - **Acción:** Mover las reglas y lógica de negocio hacia las clases del **Modelo**, dejando al **Controlador** únicamente como intermediario entre las peticiones de la Vista y el Modelo.
-- [ ] **Dominio y trazabilidad del flujo de ejecución (`index.php` -> Vista):**
+- [x] **Dominio y trazabilidad del flujo de ejecución (`index.php` -> Vista):**
   - **Problema:** Durante la revisión hubo dificultad para rastrear en vivo cómo `index.php` invoca al controlador, cómo este llama a la vista y dónde se cargan exactamente las plantillas (`header`, `footer`, vistas internas).
   - **Acción:** Mapear y limpiar la ruta de carga desde `index.php` hasta el renderizado final. Debes poder navegar fluidamente en el código y explicar paso a paso: `index.php` $\rightarrow$ enrutamiento/controlador $\rightarrow$ modelo $\rightarrow$ vista $\rightarrow$ inclusión de `header.php` y `footer.php`.
 - [ ] **Preparación para defensa técnica historia por historia:**

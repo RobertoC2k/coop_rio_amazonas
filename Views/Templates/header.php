@@ -1,6 +1,3 @@
-<?php require_once 'Models/ReservasModel.php';
-$reservas = new ReservasModel();
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -65,11 +62,11 @@ $reservas = new ReservasModel();
                     <li class="nav-item dropdown  d-flex">
                         <a class="nav-link count-indicator dropdown-toggle d-flex align-items-center justify-content-center" id="notificationDropdown" href="#" data-toggle="dropdown">
                             <i class="typcn typcn-bell mr-0"></i>
-                            <span class="count bg-danger"><?php echo count($reservas->getNuevasReservas()); ?></span>
+                            <span class="count bg-danger"><?php echo count($notificaciones); ?></span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
                             <p class="mb-0 font-weight-normal float-left dropdown-header">Notificationes</p>
-                            <?php foreach ($reservas->getNuevasReservas() as $reserva) { ?>
+                            <?php foreach ($notificaciones as $reserva) { ?>
                                 <a class="dropdown-item preview-item" href="<?php echo base_url . 'reservas/verify/' . $reserva['id']; ?>">
                                     <div class="preview-thumbnail">
                                         <div class="preview-icon bg-danger">
