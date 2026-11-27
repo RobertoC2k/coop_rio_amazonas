@@ -1,22 +1,28 @@
 <?php
+/**
+ * Controlador de Usuarios (personal administrativo).
+ * Solo recibe datos de la vista, llama al modelo (UsuariosModel) y responde.
+ */
 class Usuarios extends Controller{
     public function __construct() {
         session_start();
-        if (empty($_SESSION['id_usuario'])) {
+        // Solo el personal (tipo 1) puede entrar a este módulo.
+        if (empty($_SESSION['id_usuario']) || $_SESSION['tipo'] != 1) {
             header("location: " . base_url . 'login');
-        }
-        if ($_SESSION['tipo'] != 1) {
-            header("location: " . base_url . 'login');
+            exit;
         }
         parent::__construct();
     }
+
     public function index()
     {
-        $this->views->getView("usuarios/index");        
+        $this->views->getView("usuarios/index");
     }
+
     public function listar()
     {
         $data = $this->model->getUsuarios(1);
+        // Aquí solo se arma el HTML de la tabla (presentación)
         for ($i = 0; $i < count($data); $i++) {
             $data[$i]['estado'] = '<span class="badge bg-success">Activo</span>';
             $data[$i]['editar'] = '<button class="btn btn-outline-primary" type="button" onclick="btnEditarUser(' . $data[$i]['id'] . ');"><i class="fas fa-edit"></i></button>';
@@ -24,157 +30,71 @@ class Usuarios extends Controller{
         }
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
         die();
-        
     }
-    
+
     public function registrar()
     {
-        if ($this->is_valid_email($_POST['correo'])) {
-            $usuario = strClean($_POST['usuario']);
-            $nombre = strClean($_POST['nombre']);
-            $correo = strClean($_POST['correo']);
-            $telefono = strClean($_POST['telefono']);
-            $clave = strClean($_POST['clave']);
-            $confirmar = strClean($_POST['confirmar']);
-            $id = strClean($_POST['id']);
-            $hash = hash("SHA256", $clave);
-            if (empty($usuario) || empty($nombre) || empty($correo) || empty($telefono)) {
-                $msg = array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
-            } else {
-                if ($id == "") {
-                    if (!empty($clave) && !empty($confirmar)) {
-                        if ($clave != $confirmar) {
-                            $msg = array('msg' => 'Las contraseña no coinciden', 'icono' => 'warning');
-                        } else {
-                            $data = $this->model->registrarUsuario($usuario, $nombre, $correo, $telefono, $hash);
-                            if ($data == "ok") {
-                                $msg = array('msg' => 'Usuario registrado con éxito', 'icono' => 'success');
-                            } else if ($data == "existe") {
-                                $msg = array('msg' => 'El usuario ya existe', 'icono' => 'warning');
-                            } else {
-                                $msg = array('msg' => 'Error al registrar el usuario', 'icono' => 'error');
-                            }
-                        }
-                    } else {
-                        $msg = array('msg' => 'La contraseña es requerido', 'icono' => 'warning');
-                    }
-                } else {
-                    $data = $this->model->modificarUsuario($usuario, $nombre, $correo, $telefono, $id);
-                    if ($data == "modificado") {
-                        $msg = array('msg' => 'Usuario modificado con éxito', 'icono' => 'success');
-                    } else {
-                        $msg = array('msg' => 'Error al modificar el usuario', 'icono' => 'error');
-                    }
-                }
-            }
-        }else{
-            $msg = array('msg' => 'Ingresa un correo valido', 'icono' => 'warning');
-        }
+        // 1. Recibir datos de la vista
+        $datos = array(
+            'id'        => strClean($_POST['id']),
+            'usuario'   => strClean($_POST['usuario']),
+            'nombre'    => strClean($_POST['nombre']),
+            'correo'    => strClean($_POST['correo']),
+            'telefono'  => strClean($_POST['telefono']),
+            'clave'     => strClean($_POST['clave']),
+            'confirmar' => strClean($_POST['confirmar'])
+        );
+        // 2. El modelo valida, comprueba duplicados y registra o modifica
+        $msg = $this->model->guardar($datos);
+        // 3. Responder a la vista
         echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();
-        
     }
+
     public function editar(int $id)
     {
-        $data = $this->model->editarUser($id);
+        $data = $this->model->getUsuario($id);
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
         die();
     }
+
     public function eliminar(int $id)
     {
-        $data = $this->model->accionUser(0, $id);
-        if ($data == 1) {
-            $msg = array('msg' => 'Usuario dado de baja', 'icono' => 'success');
-        } else {
-            $msg = array('msg' => 'Error al eliminar el usuario', 'icono' => 'error');
-        }
+        $msg = $this->model->darDeBaja($id, $_SESSION['id_usuario']);
         echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();
     }
-    
+
     public function cambiarPass()
     {
-        $actual = strClean($_POST['clave_actual']);
-        $nueva = strClean($_POST['clave_nueva']);
-        $confirmar = strClean($_POST['confirmar_clave']);
-        if (empty($actual) || empty($nueva) || empty($confirmar)) {
-            $mensaje = array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
-        }else{
-            if ($nueva != $confirmar) {
-                $mensaje = array('msg' => 'Las contraseña no coinciden', 'icono' => 'warning');
-            }else{
-                $id = $_SESSION['id_usuario'];
-                $hash = hash("SHA256", $actual);
-                $data = $this->model->editarUser($id);
-                if($data['clave'] == $hash){
-                    $verificar = $this->model->modificarPass(hash("SHA256", $nueva), $id);
-                    if ($verificar == 1) {
-                        $mensaje = array('msg' => 'Contraseña Modificada con éxito', 'icono' => 'success');
-                    }else{
-                        $mensaje = array('msg' => 'Error al modificar la contraseña', 'icono' => 'error');
-                    }
-                }else{
-                    $mensaje = array('msg' => 'La contraseña actual incorrecta: ', 'icono' => 'warning');
-                }
-            }
-        }
-        echo json_encode($mensaje, JSON_UNESCAPED_UNICODE);
+        $msg = $this->model->cambiarClave(
+            $_SESSION['id_usuario'],
+            strClean($_POST['clave_actual']),
+            strClean($_POST['clave_nueva']),
+            strClean($_POST['confirmar_clave'])
+        );
+        echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();
     }
+
     public function perfil()
     {
-        $id_user = $_SESSION['id_usuario'];
-        $data = $this->model->editarUser($id_user);
+        $data = $this->model->getUsuario($_SESSION['id_usuario']);
         $this->views->getView("usuarios/perfil", $data);
     }
 
     public function actualizarDato()
     {
-        $usuario = strClean($_POST['usuario']);
-        $nombre = strClean($_POST['nombre']);
-        $correo = strClean($_POST['correo']);
-        $telefono = strClean($_POST['telefono']);
-        $direccion = strClean($_POST['direccion']);
-        $apellido = strClean($_POST['apellido']);
-        $id = $_SESSION['id_usuario'];
-        $perfil = $_FILES['imagen'];
-        $name = $perfil['name'];
-        $tmpname = $perfil['tmp_name'];
-        $fecha = date("YmdHis");
-        if (!empty($name)) {
-            $extension = pathinfo($name, PATHINFO_EXTENSION);
-            $formatos_permitidos =  array('png', 'jpeg', 'jpg');
-            $extension = pathinfo($name, PATHINFO_EXTENSION);
-            if (!in_array($extension, $formatos_permitidos)) {
-                $msg = array('msg' => 'Archivo no permitido', 'icono' => 'warning');
-            } else {
-                $imgNombre = $fecha . ".jpg";
-                $destino = "Assets/img/users/" . $imgNombre;
-            }
-        } else {
-            $imgNombre = strClean($_POST['foto_actual']);
-        }
-        if (empty($usuario) || empty($nombre)|| empty($apellido) || empty($correo)|| empty($telefono) || empty($direccion)) {
-            $msg = array('msg' => 'Todo los campos son obligatorios', 'icono' => 'warning');
-        } else {
-            if (!empty($name)) {
-                $imgDelete = $this->model->editarUser($id);
-                if ($imgDelete['perfil'] != 'avatar.svg') {
-                    if (file_exists("Assets/img/users/" . $imgDelete['perfil'])) {
-                        unlink("Assets/img/users/" . $imgDelete['perfil']);
-                    }
-                }
-            }
-            $data = $this->model->modificarDato($usuario, $nombre, $apellido, $correo, $telefono, $direccion, $imgNombre, $id);
-            if ($data == 1) {
-                if (!empty($name)) {
-                    move_uploaded_file($tmpname, $destino);
-                }
-                $msg = array('msg' => 'Usuario modificado con éxito', 'icono' => 'success');
-            } else {
-                $msg = array('msg' => 'Error al modificar el usuario', 'icono' => 'error');
-            }
-        }
+        $datos = array(
+            'usuario'   => strClean($_POST['usuario']),
+            'nombre'    => strClean($_POST['nombre']),
+            'apellido'  => strClean($_POST['apellido']),
+            'correo'    => strClean($_POST['correo']),
+            'telefono'  => strClean($_POST['telefono']),
+            'direccion' => strClean($_POST['direccion'])
+        );
+        // El modelo valida los datos, la foto y la guarda
+        $msg = $this->model->actualizarPerfil($_SESSION['id_usuario'], $datos, $_FILES['imagen']);
         echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();
     }
@@ -183,12 +103,6 @@ class Usuarios extends Controller{
     {
         session_destroy();
         header("location: " . base_url);
-    }
-    
-    function is_valid_email($str)
-    {
-        return (false !== filter_var($str, FILTER_VALIDATE_EMAIL));
+        exit;
     }
 }
-?>
-

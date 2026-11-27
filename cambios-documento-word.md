@@ -186,5 +186,5 @@ Las capturas anteriores ya no coinciden con el sistema. Rehacer:
 
 ## Pendiente (aún no aplicado en el código)
 
-- Refactor MVC del módulo **Reservas** (mover lógica al modelo y aplicar la misma regla de cruce de fechas). Cuando se haga, actualizar el caso de uso "Solicitar reserva" y su HU.
+- ~~Refactor MVC del módulo **Reservas**~~ (hecho en el código). Falta actualizar en el documento el caso de uso "Solicitar reserva" y su HU con las nuevas reglas: no se permiten fechas pasadas, la cantidad debe ser mayor a 0, se detecta cualquier cruce de fechas (total o parcial) con otras reservas o con servicios en curso, y si falla el correo la reserva igual queda aprobada.
 - Cambio de nombre de la carpeta del proyecto y de la base de datos a `coop_rio_amazonas` (ver instrucciones entregadas aparte).

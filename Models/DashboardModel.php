@@ -8,9 +8,21 @@ class DashboardModel extends Query
 
     public function getDatos(string $table)
     {
+        // El nombre de una tabla no puede ir en un "?", por eso solo se aceptan
+        // las tablas de esta lista (lista blanca).
+        if (!in_array($table, array('usuarios', 'clientes', 'vehiculos', 'tipos', 'marcas'))) {
+            return array('total' => 0);
+        }
         $sql = "SELECT COUNT(*) AS total FROM $table WHERE estado = 1";
         $data = $this->select($sql);
         return $data;
+    }
+
+    // Regla del reporte: los ingresos mensuales se muestran del año en curso (enero a diciembre)
+    public function ingresosAnioActual()
+    {
+        $anio = date('Y');
+        return $this->ingresosMes($anio . '-01-01 00:00:00', $anio . '-12-31 23:59:59');
     }
 
     public function ingresosMes($desde, $hasta)
@@ -37,7 +49,7 @@ class DashboardModel extends Query
         DATE_FORMAT(fecha_inicio, '%Y-%m-%d') as fecha, 
         SUM(cantidad * monto) as total
         FROM servicios
-        WHERE WEEK(fecha_inicio) = WEEK(CURDATE())  -- Obtener la semana actual
+        WHERE YEARWEEK(fecha_inicio, 1) = YEARWEEK(CURDATE(), 1)  -- Semana actual (lunes a domingo) del año actual
         GROUP BY fecha
         ORDER BY fecha";
         return $this->selectAll($sql);
