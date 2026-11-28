@@ -82,6 +82,101 @@ class ReglasTransporte extends Query
     }
 
     /**
+     * Lo que falta pagar: (cantidad x precio unitario) - lo abonado.
+     * Antes devolvía 0 si el servicio estaba finalizado, aunque el cliente no hubiera
+     * pagado todo. Ahora un servicio solo se finaliza con el saldo en 0 (ver
+     * ServiciosModel::finalizar), así que el cálculo real sirve para todos los casos.
+     */
+    public function calcularSaldoPendiente($servicio)
+    {
+        return round($this->calcularTotal($servicio['cantidad'], $servicio['monto']) - $servicio['abono'], 2);
+    }
+
+    /**
+     * Resumen del servicio creado al aprobar una reserva (pantalla reservas/verify).
+     * Devuelve null si la reserva todavía no tiene servicio (pendiente o rechazada).
+     */
+    public function resumenServicioDeReserva($idReserva)
+    {
+        $servicio = $this->select("SELECT * FROM servicios WHERE id_reserva = ?", array($idReserva));
+        if (empty($servicio)) {
+            return null;
+        }
+        return array(
+            'id'           => $servicio['id'],
+            'estado'       => $servicio['estado'],
+            'texto_estado' => $this->textoEstado($servicio['estado']),
+            'total'        => $this->calcularTotal($servicio['cantidad'], $servicio['monto']),
+            'abonado'      => (float) $servicio['abono'],
+            'pendiente'    => $this->calcularSaldoPendiente($servicio),
+        );
+    }
+
+    public function textoEstado($estado)
+    {
+        return ($estado == 1) ? 'En curso' : 'Finalizado';
+    }
+
+    /**
+     * Datos listos para el comprobante PDF de un servicio (Views/servicios/pdf-comprobante.php).
+     * Lo usan Servicios::pdfServicio (verlo en el navegador) y ReservasModel::aprobar
+     * (adjuntarlo al correo del cliente). Devuelve null si el servicio no existe.
+     */
+    public function datosComprobante(int $id)
+    {
+        $servicio = $this->getServicio($id);
+        if (empty($servicio)) {
+            return null;
+        }
+        return array(
+            'empresa'      => $this->getEmpresa(),
+            'servicio'     => $servicio,
+            'texto_estado' => $this->textoEstado($servicio['estado']),
+            'texto_tipo'   => $this->textoTipoPrecio($servicio['tipo_precio']),
+            'pendiente'    => $this->calcularSaldoPendiente($servicio),
+            'abonos'       => $this->getAbonos($servicio['id']),
+        );
+    }
+
+    // Historial de pagos de un servicio, del más antiguo al más reciente, con quién lo cobró
+    public function getAbonos($idServicio)
+    {
+        $sql = "SELECT a.id, a.monto, a.fecha, IFNULL(u.nombre, '-') AS usuario
+                FROM abonos a LEFT JOIN usuarios u ON u.id = a.id_usuario
+                WHERE a.id_servicio = ? ORDER BY a.fecha, a.id";
+        return $this->selectAll($sql, array($idServicio));
+    }
+
+    public function getEmpresa()
+    {
+        $sql = "SELECT * FROM configuracion";
+        return $this->select($sql);
+    }
+
+    public function getServicio(int $id)
+    {
+        $sql = "SELECT s.*, c.dni, c.nombre, c.telefono, c.direccion, v.placa, v.modelo, t.tipo FROM servicios s
+                INNER JOIN clientes c ON c.id = s.id_cliente
+                INNER JOIN vehiculos v ON v.id = s.id_vehiculo
+                INNER JOIN tipos t ON t.id = v.id_tipo
+                WHERE s.id = ?";
+        return $this->select($sql, array($id));
+    }
+
+    /**
+     * Guarda un servicio y devuelve su id (0 si falló).
+     * Lo usan ServiciosModel::registrar (servicio a mano) y ReservasModel::aprobar
+     * (al aprobar una reserva se crea su servicio, así cuenta en el dashboard y el reporte).
+     * $idReserva: la reserva de origen; null si el servicio se registró a mano.
+     */
+    public function registrarServicio($cantidad, $precios, $monto, $abono, $inicio, $fin, $observacion, $id_cli, $id_veh, $idReserva = null)
+    {
+        $sql = "INSERT INTO servicios(cantidad, tipo_precio, monto, abono, fecha_inicio, fecha_fin, observacion, id_cliente, id_vehiculo, id_reserva) VALUES (?,?,?,?,?,?,?,?,?,?)";
+        $datos = array($cantidad, $precios, $monto, $abono, $inicio, $fin, $observacion, $id_cli, $id_veh, $idReserva);
+        return $this->insertar($sql, $datos);
+    }
+
+    /**
      * Dos periodos se cruzan si uno empieza antes de que el otro termine
      * y termina después de que el otro empiece.
      * Se revisan:

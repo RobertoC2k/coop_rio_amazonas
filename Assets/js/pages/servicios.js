@@ -1,4 +1,5 @@
 let m_finalizar = new bootstrap.Modal(document.getElementById('modalFinalizar'));
+let m_abonos = new bootstrap.Modal(document.getElementById('modalAbonos'));
 
 document.addEventListener('DOMContentLoaded', function(){
     tblServicios = $('#tblServicios').DataTable({
@@ -164,6 +165,71 @@ function finalizarServicio(e) {
                 alertify.success(res.msg);
                 m_finalizar.hide();
                 tblServicios.ajax.reload();
+            } else {
+                alertify.error(res.msg);
+            }
+        }
+    }
+}
+
+// Abre la ventana de abonos: totales, historial de pagos y, si sigue en curso, el campo para un nuevo abono.
+// Los textos se escriben con textContent (no innerHTML) para que no se interpreten como HTML.
+function verAbonos(id) {
+    const http = new XMLHttpRequest();
+    http.open("GET", base_url + 'servicios/abonos/' + id, true);
+    http.send();
+    http.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            const res = JSON.parse(this.responseText);
+            if (!res) {
+                alertify.error('El servicio no existe');
+                return;
+            }
+            document.getElementById('abono_id_servicio').value = res.id;
+            document.getElementById('abono_total').textContent = parseFloat(res.total).toFixed(2);
+            document.getElementById('abono_abonado').textContent = parseFloat(res.abonado).toFixed(2);
+            document.getElementById('abono_pendiente').textContent = parseFloat(res.pendiente).toFixed(2);
+            const tbody = document.getElementById('tblAbonos');
+            tbody.innerHTML = '';
+            if (res.abonos.length == 0) {
+                const fila = tbody.insertRow();
+                const celda = fila.insertCell();
+                celda.colSpan = 3;
+                celda.textContent = 'Sin abonos registrados';
+            }
+            res.abonos.forEach(function (abono) {
+                const fila = tbody.insertRow();
+                fila.insertCell().textContent = abono.fecha;
+                fila.insertCell().textContent = parseFloat(abono.monto).toFixed(2);
+                fila.insertCell().textContent = abono.usuario;
+            });
+            // Solo se puede abonar si el servicio todavía debe algo
+            const puedeAbonar = res.pendiente > 0;
+            document.getElementById('grupoNuevoAbono').style.display = puedeAbonar ? '' : 'none';
+            document.getElementById('btnRegistrarAbono').style.display = puedeAbonar ? '' : 'none';
+            document.getElementById('monto_abono').value = '';
+            m_abonos.show();
+        }
+    }
+}
+
+function registrarAbono(e) {
+    e.preventDefault();
+    const id = document.getElementById('abono_id_servicio').value;
+    if (document.getElementById('monto_abono').value.trim() == '') {
+        alertify.error('Ingrese el monto del abono');
+        return;
+    }
+    const http = new XMLHttpRequest();
+    http.open("POST", base_url + 'servicios/registrarAbono/' + id, true);
+    http.send(new FormData(document.getElementById('frmAbono')));
+    http.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            const res = JSON.parse(this.responseText);
+            if (res.icono == 'success') {
+                alertify.success(res.msg);
+                tblServicios.ajax.reload();
+                verAbonos(id);   // refresca totales e historial en la misma ventana
             } else {
                 alertify.error(res.msg);
             }

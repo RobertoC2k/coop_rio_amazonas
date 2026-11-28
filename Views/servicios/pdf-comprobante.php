@@ -9,7 +9,7 @@ $empresa  = $data['empresa'];
 $servicio = $data['servicio'];
 $tipo     = $data['texto_tipo'];
 
-require('Libraries/fpdf/html2pdf.php');
+require_once 'Libraries/fpdf/html2pdf.php';
 
 $pdf = new PDF_HTML('P', 'mm', array(210, 148));
 $pdf->AddPage();
@@ -58,6 +58,20 @@ $pdf->Cell(65, 5, textoPdf('MONTO x ' . $tipo . $servicio['monto']), 1, 0, 'L');
 $pdf->Cell(70, 5, textoPdf('ABONADO: ' . $servicio['abono']), 1, 1, 'L');
 $pdf->Cell(65, 5, textoPdf('F. INICIO: ' . $servicio['fecha_inicio']), 1, 0, 'L');
 $pdf->Cell(70, 5, textoPdf('F. FIN: ' . $servicio['fecha_fin']), 1, 1, 'L');
+// Historial de abonos (cada pago parcial del cliente)
+if (!empty($data['abonos'])) {
+    $pdf->SetFont('Arial', 'B', 9);
+    $pdf->Cell(135, 10, 'Abonos', 0, 1, 'C');
+    $pdf->Cell(45, 5, 'FECHA', 1, 0, 'L');
+    $pdf->Cell(30, 5, 'MONTO', 1, 0, 'L');
+    $pdf->Cell(60, 5, 'COBRADO POR', 1, 1, 'L');
+    $pdf->SetFont('Arial', '', 9);
+    foreach ($data['abonos'] as $abono) {
+        $pdf->Cell(45, 5, $abono['fecha'], 1, 0, 'L');
+        $pdf->Cell(30, 5, number_format($abono['monto'], 2), 1, 0, 'L');
+        $pdf->Cell(60, 5, textoPdf($abono['usuario']), 1, 1, 'L');
+    }
+}
 $pdf->Ln();
 $pdf->Cell(135, 5, textoPdf('PENDIENTE: ' . number_format($data['pendiente'], 2)), 0, 1, 'C');
 // Firmas
@@ -69,4 +83,10 @@ $pdf->Cell(65, 5, textoPdf('Huella'), 0, 1, 'C');
 $pdf->Ln(2);
 $pdf->WriteHtml(textoPdf($empresa['mensaje']));
 
-$pdf->Output();
+// Output('S') devuelve el PDF como texto (para adjuntarlo al correo, ver pdfComoTexto en Helpers.php);
+// Output() sin parámetros lo muestra en el navegador.
+if (!empty($data['como_texto'])) {
+    $pdfTexto = $pdf->Output('S');
+} else {
+    $pdf->Output();
+}

@@ -157,4 +157,18 @@ function cargarFooter($tipo) {
         include "Views/Templates/footer-cliente.php";
     }
 }
+
+/**
+ * Arma un PDF con su vista y lo devuelve como texto, sin mostrarlo en el navegador.
+ * Sirve para adjuntarlo a un correo (ej. comprobante al aprobar una reserva).
+ * La vista debe guardar el resultado de $pdf->Output('S') en $pdfTexto cuando
+ * $data['como_texto'] es verdadero. Devuelve '' si no se pudo generar.
+ */
+function pdfComoTexto($vista, array $data)
+{
+    $data['como_texto'] = true;
+    $pdfTexto = '';
+    require "Views/" . $vista . ".php";
+    return $pdfTexto;
+}
 ?>

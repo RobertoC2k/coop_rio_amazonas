@@ -34,6 +34,19 @@
                     </div>
                 <?php } else if ($data['reserva']['estado'] == 1) { ?>
                     <div class="alert alert-success">Reserva <b>aprobada</b>.</div>
+                    <?php if (!empty($data['servicio'])) {
+                        $servicio = $data['servicio']; ?>
+                        <!-- Estado del servicio que se creó al aprobar: la reserva sigue "aprobada",
+                             la ejecución y los pagos los lleva el servicio -->
+                        <div class="alert <?php echo $servicio['estado'] == 1 ? 'alert-warning' : 'alert-secondary'; ?>">
+                            <b>Servicio #<?php echo (int) $servicio['id']; ?>:</b> <?php echo escapar($servicio['texto_estado']); ?>
+                            &middot; Abonado <?php echo number_format($servicio['abonado'], 2); ?> de <?php echo number_format($servicio['total'], 2); ?>
+                            <?php if ($servicio['pendiente'] > 0) { ?>
+                                &middot; <span class="text-danger">Pendiente <?php echo number_format($servicio['pendiente'], 2); ?></span>
+                            <?php } ?>
+                            &middot; <a href="<?php echo base_url . 'servicios/pdfServicio/' . (int) $servicio['id']; ?>" target="_blank">Ver comprobante PDF</a>
+                        </div>
+                    <?php } ?>
                     <?php if ($data['whatsapp'] != '') { ?>
                         <div class="text-end">
                             <a class="btn btn-success" href="<?php echo htmlspecialchars($data['whatsapp']); ?>" target="_blank">

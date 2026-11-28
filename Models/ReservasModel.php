@@ -202,11 +202,27 @@ class ReservasModel extends ReglasTransporte
         if ($this->actualizarEstado(1, $idReserva) != 1) {
             return array('msg' => 'Error al aprobar', 'icono' => 'error');
         }
+        // 2b. La reserva aprobada se convierte en servicio (abono 0, estado "En curso"):
+        //     así aparece en Servicios, en el dashboard de ingresos y en el reporte PDF.
+        //     El enlace con la reserva queda en servicios.id_reserva; en la observación se deja
+        //     también el número de reserva para que el personal lo vea en el listado.
+        $observacion = trim('Reserva #' . $pendiente['id'] . '. ' . $pendiente['observacion']
+            . ($pendiente['direccion_trabajo'] ? ' Punto de trabajo: ' . $pendiente['direccion_trabajo'] : ''));
+        $idServicio = $this->registrarServicio(
+            $pendiente['cantidad'], $pendiente['tipo_precio'], $pendiente['monto'], 0,
+            $pendiente['f_inicio'], $pendiente['f_fin'], $observacion,
+            $pendiente['id_cliente'], $pendiente['id_vehiculo'], $pendiente['id']
+        );
+        if ($idServicio == 0) {
+            // Si no se pudo crear el servicio, la reserva vuelve a pendiente para no quedar a medias
+            $this->actualizarEstado(0, $idReserva);
+            return array('msg' => 'Error al crear el servicio de la reserva', 'icono' => 'error');
+        }
         // 3. Notificar por correo y armar el resumen para el usuario
         $r = $this->getDetalleReserva($idReserva);
         $avisos = array();
         if (!empty($r['correo'])) {
-            $avisos[] = $this->notificarCliente($r) ? 'correo al cliente enviado' : 'no se pudo enviar el correo al cliente';
+            $avisos[] = $this->notificarCliente($r, $idServicio) ?'correo al cliente enviado' : 'no se pudo enviar el correo al cliente';
         }
         if (!empty($r['prop_correo'])) {
             $avisos[] = $this->notificarPropietario($r) ? 'correo al dueño enviado' : 'no se pudo enviar el correo al dueño';
@@ -221,17 +237,28 @@ class ReservasModel extends ReglasTransporte
     }
 
     // Correo de confirmación al cliente, con el evento para su calendario
-    private function notificarCliente($r)
+    // Adjunta el evento de calendario (.ics) y el comprobante PDF del servicio creado al aprobar.
+    private function notificarCliente($r, $idServicio)
     {
         $empresa = $this->getEmpresa();
+        $ics = $this->generarIcs($r, 'Reserva ' . $r['tipo'] . ' ' . $r['placa'] . ' - ' . $empresa['nombre']);
+        $adjuntos = array(
+            array('contenido' => $ics, 'nombre' => 'reserva-' . $r['id'] . '.ics', 'tipo' => 'text/calendar; charset=utf-8; method=PUBLISH')
+        );
+        // El comprobante es el mismo PDF que ve el personal en Servicios (misma vista).
+        // Si no se pudiera generar, el correo se envía igual, solo con el .ics.
+        $datosPdf = $this->datosComprobante((int) $idServicio);
+        $pdf = empty($datosPdf) ? '' : pdfComoTexto('servicios/pdf-comprobante', $datosPdf);
+        if ($pdf !== '') {
+            $adjuntos[] = array('contenido' => $pdf, 'nombre' => 'comprobante-servicio-' . $idServicio . '.pdf', 'tipo' => 'application/pdf');
+        }
         $cuerpo = '<p>Hola ' . htmlspecialchars($r['nombre']) . ',</p>'
             . '<p>Tu reserva fue <b>aprobada</b>. Estos son los datos:</p>'
             . $this->tablaDetalle($r, false)
-            . '<p>Adjuntamos el evento para que lo agregues a tu calendario.</p>';
-        $ics = $this->generarIcs($r, 'Reserva ' . $r['tipo'] . ' ' . $r['placa'] . ' - ' . $empresa['nombre']);
+            . '<p>Adjuntamos el evento para que lo agregues a tu calendario'
+            . ($pdf !== '' ? ' y el comprobante del servicio en PDF' : '') . '.</p>';
         return Correo::enviar($r['correo'], $r['nombre'], 'Reserva aprobada', $cuerpo,
-            $empresa['nombre'], $empresa['correo'], $empresa['nombre'],
-            array(array('contenido' => $ics, 'nombre' => 'reserva-' . $r['id'] . '.ics', 'tipo' => 'text/calendar; charset=utf-8; method=PUBLISH')));
+            $empresa['nombre'], $empresa['correo'], $empresa['nombre'], $adjuntos);
     }
 
     // Correo al dueño del vehículo con los datos del trabajo y el evento de calendario
@@ -453,9 +480,5 @@ class ReservasModel extends ReglasTransporte
         return $this->save($sql, array($motivo, $id));
     }
 
-    public function getEmpresa()
-    {
-        $sql = "SELECT * FROM configuracion";
-        return $this->select($sql);
-    }
+    // getEmpresa() se hereda de ReglasTransporte.
 }

@@ -162,9 +162,50 @@
     </div>
 </div>
 
+<!-- Ventana de abonos: totales, historial de pagos y registro de un pago parcial -->
+<div class="modal fade" id="modalAbonos" tabindex="-1" aria-labelledby="tituloAbonos" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title" id="tituloAbonos">Abonos del servicio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="frmAbono" onsubmit="registrarAbono(event)" autocomplete="off">
+                <div class="modal-body">
+                    <input type="hidden" id="abono_id_servicio">
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item"><b>Total:</b> <span id="abono_total"></span></li>
+                        <li class="list-group-item"><b>Abonado:</b> <span id="abono_abonado"></span></li>
+                        <li class="list-group-item"><b>Pendiente:</b> <span id="abono_pendiente"></span></li>
+                    </ul>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Monto</th>
+                                <th>Cobrado por</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblAbonos"></tbody>
+                    </table>
+                    <div class="form-floating" id="grupoNuevoAbono">
+                        <input id="monto_abono" class="form-control" type="text" name="monto" placeholder="Monto del abono">
+                        <label for="monto_abono">Nuevo abono <span class="text-danger fw-bold">*</span></label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" id="btnRegistrarAbono">Registrar abono</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?php cargarFooter($_SESSION['tipo']); ?>
 
-<script src="<?php echo base_url . 'Assets/js/pages/servicios.js'; ?>"></script>
+<!-- ?v=fecha de modificación: cuando el archivo cambia, el navegador descarga la versión nueva en vez de usar la de su caché -->
+<script src="<?php echo base_url . 'Assets/js/pages/servicios.js?v=' . filemtime('Assets/js/pages/servicios.js'); ?>"></script>
 
 </body>
 

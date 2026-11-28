@@ -59,8 +59,8 @@ class ServiciosModel extends ReglasTransporte
         $tarifa = $this->calcularTarifa($vehiculo, $d['precios'], $d['cantidad'], $d['fecha']);
 
         // 6. El abono es un número de 0 en adelante (hasta 2 decimales) y no supera el total
-        $abono = str_replace(',', '.', trim($d['abono']));   // acepta 10,50 o 10.50
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $abono)) {
+        $abono = $this->normalizarMonto($d['abono']);
+        if ($abono === null) {
             return array('msg' => 'El abono debe ser un número (ejemplo: 50 o 50.25)', 'icono' => 'warning');
         }
         // calcularTotal redondea a centavos (ver ReglasTransporte): sin eso, un abono
@@ -83,9 +83,73 @@ class ServiciosModel extends ReglasTransporte
             $d['observacion'], $d['id_cli'], $d['id_veh']
         );
         if ($id > 0) {
+            // El abono inicial también queda en el historial de pagos
+            if ((float) $abono > 0) {
+                $this->insertarAbono($id, $abono, $d['id_usuario']);
+            }
             return array('msg' => 'Servicio registrado con éxito', 'icono' => 'success', 'id_servicio' => $id);
         }
         return array('msg' => 'Error al registrar el servicio', 'icono' => 'error');
+    }
+
+    /**
+     * Convierte el texto del monto a número con punto decimal ("10,50" -> "10.50").
+     * Devuelve null si no es un número de 0 en adelante con hasta 2 decimales.
+     */
+    private function normalizarMonto($texto)
+    {
+        $monto = str_replace(',', '.', trim((string) $texto));
+        return preg_match('/^\d+(\.\d{1,2})?$/', $monto) ? $monto : null;
+    }
+
+    /**
+     * Registra un pago parcial (abono) de un servicio.
+     * Reglas: el servicio existe y todavía debe algo; el monto es mayor que 0
+     * y no supera lo que falta pagar. Se guarda quién lo cobró ($idUsuario).
+     * No se exige que esté "En curso": los servicios finalizados antes de esta regla
+     * pudieron quedar con saldo, y así se pueden terminar de cobrar.
+     */
+    public function registrarAbono($idServicio, $montoTexto, $idUsuario)
+    {
+        $servicio = $this->getServicio((int) $idServicio);
+        if (empty($servicio)) {
+            return array('msg' => 'El servicio no existe', 'icono' => 'error');
+        }
+        $pendiente = $this->calcularSaldoPendiente($servicio);
+        if ($pendiente <= 0) {
+            return array('msg' => 'El servicio ya está pagado en su totalidad', 'icono' => 'warning');
+        }
+        $monto = $this->normalizarMonto($montoTexto);
+        if ($monto === null || (float) $monto <= 0) {
+            return array('msg' => 'El abono debe ser un número mayor que 0 (ejemplo: 50 o 50.25)', 'icono' => 'warning');
+        }
+        if ((float) $monto > $pendiente) {
+            return array('msg' => 'El abono no puede ser mayor a lo pendiente ($' . number_format($pendiente, 2) . ')', 'icono' => 'warning');
+        }
+        if ($this->insertarAbono($servicio['id'], $monto, $idUsuario) == 0) {
+            return array('msg' => 'Error al registrar el abono', 'icono' => 'error');
+        }
+        return array('msg' => 'Abono registrado', 'icono' => 'success');
+    }
+
+    /**
+     * Datos para la ventana de abonos: totales del servicio y el historial de pagos.
+     * Devuelve null si el servicio no existe.
+     */
+    public function datosAbonos($idServicio)
+    {
+        $servicio = $this->getServicio((int) $idServicio);
+        if (empty($servicio)) {
+            return null;
+        }
+        return array(
+            'id'        => $servicio['id'],
+            'estado'    => $servicio['estado'],
+            'total'     => $this->calcularTotal($servicio['cantidad'], $servicio['monto']),
+            'abonado'   => (float) $servicio['abono'],
+            'pendiente' => $this->calcularSaldoPendiente($servicio),
+            'abonos'    => $this->getAbonos($servicio['id']),
+        );
     }
 
     // validarCantidad(), calcularTarifa() y buscarCruceDeFechas() se heredan de
@@ -97,12 +161,17 @@ class ServiciosModel extends ReglasTransporte
         // Solo se finaliza un servicio que existe y sigue en curso. Antes se respondía
         // "Servicio finalizado" siempre, porque save() devuelve 1 si la consulta se ejecuta,
         // aunque no haya cambiado ninguna fila.
-        $servicio = $this->getEstadoServicio($id);
+        $servicio = $this->getServicio((int) $id);
         if (empty($servicio)) {
             return array('msg' => 'El servicio no existe', 'icono' => 'error');
         }
         if ($servicio['estado'] != 1) {
             return array('msg' => 'El servicio ya estaba finalizado', 'icono' => 'warning');
+        }
+        // Solo se finaliza un servicio pagado en su totalidad
+        $pendiente = $this->calcularSaldoPendiente($servicio);
+        if ($pendiente > 0) {
+            return array('msg' => 'No se puede finalizar: falta pagar $' . number_format($pendiente, 2) . '. Registra el abono primero', 'icono' => 'warning');
         }
         if ($this->actualizarEstado(0, $id) == 'ok') {
             return array('msg' => 'Servicio finalizado', 'icono' => 'success');
@@ -110,39 +179,8 @@ class ServiciosModel extends ReglasTransporte
         return array('msg' => 'Error al finalizar el servicio', 'icono' => 'error');
     }
 
-    // Lo que falta pagar: (cantidad x precio unitario) - abono. Si ya finalizó, no debe nada.
-    public function calcularSaldoPendiente($servicio)
-    {
-        if ($servicio['estado'] == 0) {
-            return 0;
-        }
-        return round($this->calcularTotal($servicio['cantidad'], $servicio['monto']) - $servicio['abono'], 2);
-    }
-
-    public function textoEstado($estado)
-    {
-        return ($estado == 1) ? 'En curso' : 'Finalizado';
-    }
-
-    /**
-     * Datos listos para el comprobante PDF de un servicio (Views/servicios/pdf-comprobante.php).
-     * El modelo prepara textos y cálculos; la vista solo dibuja el PDF.
-     * Devuelve null si el servicio no existe.
-     */
-    public function datosComprobante(int $id)
-    {
-        $servicio = $this->getServicio($id);
-        if (empty($servicio)) {
-            return null;
-        }
-        return array(
-            'empresa'     => $this->getEmpresa(),
-            'servicio'    => $servicio,
-            'texto_estado' => $this->textoEstado($servicio['estado']),
-            'texto_tipo'  => $this->textoTipoPrecio($servicio['tipo_precio']),
-            'pendiente'   => $this->calcularSaldoPendiente($servicio),
-        );
-    }
+    // calcularSaldoPendiente(), textoEstado() y datosComprobante() se heredan de
+    // ReglasTransporte: ReservasModel también arma el comprobante para enviarlo por correo.
 
     /**
      * Datos listos para el reporte PDF de todos los servicios (Views/servicios/pdf-reporte.php).
@@ -151,10 +189,33 @@ class ServiciosModel extends ReglasTransporte
     public function datosReporte()
     {
         $servicios = $this->getServicios();
+        $totales = array('total' => 0, 'pagado' => 0, 'pendiente' => 0);
         foreach ($servicios as $i => $row) {
             $servicios[$i]['texto_estado'] = $this->textoEstado($row['estado']);
+            $servicios[$i]['total'] = $this->calcularTotal($row['cantidad'], $row['monto']);
+            $servicios[$i]['pendiente'] = $this->calcularSaldoPendiente($row);
+            $totales['total'] += $servicios[$i]['total'];
+            $totales['pagado'] += (float) $row['abono'];
+            $totales['pendiente'] += $servicios[$i]['pendiente'];
         }
-        return array('empresa' => $this->getEmpresa(), 'servicios' => $servicios);
+        return array(
+            'empresa'   => $this->getEmpresa(),
+            'servicios' => $servicios,
+            'totales'   => array_map(function ($v) { return round($v, 2); }, $totales),
+            'abonos'    => $this->getTodosLosAbonos(),
+        );
+    }
+
+    // Todos los pagos registrados, con el servicio y el cliente (detalle del reporte PDF)
+    public function getTodosLosAbonos()
+    {
+        $sql = "SELECT a.fecha, a.monto, a.id_servicio, c.nombre AS cliente, IFNULL(u.nombre, '-') AS usuario
+                FROM abonos a
+                INNER JOIN servicios s ON s.id = a.id_servicio
+                INNER JOIN clientes c ON c.id = s.id_cliente
+                LEFT JOIN usuarios u ON u.id = a.id_usuario
+                ORDER BY a.fecha, a.id";
+        return $this->selectAll($sql);
     }
 
     /* =========================================================
@@ -184,31 +245,25 @@ class ServiciosModel extends ReglasTransporte
         $sql = "SELECT * FROM vehiculos WHERE id = ?";
         return $this->select($sql, array($id));
     }
-    public function getEmpresa()
+    // getEmpresa(), getServicio() y getAbonos() se heredan de ReglasTransporte.
+
+    /**
+     * Guarda un pago en el historial y actualiza servicios.abono con la SUMA de los pagos.
+     * Se recalcula la suma (en vez de sumar al valor anterior) para que nunca queden
+     * descuadrados. Devuelve el id del abono (0 si falló).
+     */
+    public function insertarAbono($idServicio, $monto, $idUsuario)
     {
-        $sql = "SELECT * FROM configuracion";
-        return $this->select($sql);
-    }
-    public function getServicio(int $id)
-    {
-        $sql = "SELECT s.*, c.dni, c.nombre, c.telefono, c.direccion, v.placa, v.modelo, t.tipo FROM servicios s
-                INNER JOIN clientes c ON c.id = s.id_cliente
-                INNER JOIN vehiculos v ON v.id = s.id_vehiculo
-                INNER JOIN tipos t ON t.id = v.id_tipo
-                WHERE s.id = ?";
-        return $this->select($sql, array($id));
+        $id = $this->insertar("INSERT INTO abonos (monto, id_servicio, id_usuario) VALUES (?,?,?)",
+            array($monto, $idServicio, $idUsuario));
+        if ($id > 0) {
+            $this->save("UPDATE servicios SET abono = (SELECT IFNULL(SUM(monto), 0) FROM abonos WHERE id_servicio = ?) WHERE id = ?",
+                array($idServicio, $idServicio));
+        }
+        return $id;
     }
 
-    public function registrarServicio($cantidad, $precios, $monto, $abono, $inicio, $fin, $observacion, $id_cli, $id_veh)
-    {
-        $sql = "INSERT INTO servicios(cantidad, tipo_precio, monto, abono, fecha_inicio, fecha_fin, observacion, id_cliente, id_vehiculo) VALUES (?,?,?,?,?,?,?,?,?)";
-        $datos = array($cantidad, $precios, $monto, $abono, $inicio, $fin, $observacion, $id_cli, $id_veh);
-        return $this->insertar($sql, $datos);
-    }
-    public function getEstadoServicio(int $id)
-    {
-        return $this->select("SELECT id, estado FROM servicios WHERE id = ?", array($id));
-    }
+    // registrarServicio() se hereda de ReglasTransporte: también lo usa ReservasModel al aprobar.
 
     public function actualizarEstado(int $estado, int $id)
     {

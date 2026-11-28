@@ -35,7 +35,8 @@ class Servicios extends Controller
             'precios'         => strClean($_POST['precios']),
             'abono'           => strClean($_POST['abono']),
             'fecha'           => strClean($_POST['fecha']),
-            'observacion'     => strClean($_POST['observacion'])
+            'observacion'     => strClean($_POST['observacion']),
+            'id_usuario'      => $_SESSION['id_usuario']   // quién cobra el abono inicial
         );
         // 2. El modelo valida, calcula, verifica disponibilidad y guarda
         $msg = $this->model->registrar($datos);
@@ -54,11 +55,13 @@ class Servicios extends Controller
             $data[$i]['f_inicio'] = '<span class="badge bg-primary">' . $data[$i]['fecha_inicio'] . '</span>';
             $data[$i]['f_fin'] = '<span class="badge bg-info">' . $data[$i]['fecha_fin'] . '</span>';
             $data[$i]['accion'] = '<a class="btn btn-outline-danger" target="_blank" href="' . base_url . 'servicios/pdfServicio/' . $id . '"><i class="fas fa-file-pdf"></i></a>';
+            // Botón de abonos en todos los servicios (en los finalizados solo muestra el historial)
+            $btnAbonos = '<button class="btn btn-outline-success" type="button" title="Abonos" onclick="verAbonos(' . $id . ');"><i class="fas fa-dollar-sign"></i></button> ';
             if ($data[$i]['estado'] == 1) {
-                $data[$i]['finalizar'] = '<button class="btn btn-outline-primary" type="button" title="Finalizar servicio" onclick="verFinalizar(' . $id . ');"><i class="fas fa-check"></i></button>';
+                $data[$i]['finalizar'] = $btnAbonos . '<button class="btn btn-outline-primary" type="button" title="Finalizar servicio" onclick="verFinalizar(' . $id . ');"><i class="fas fa-check"></i></button>';
                 $data[$i]['estatus'] = '<span class="badge bg-warning">' . $estado . '</span>';
             } else {
-                $data[$i]['finalizar'] = '';
+                $data[$i]['finalizar'] = $btnAbonos;
                 $data[$i]['estatus'] = '<span class="badge bg-success">' . $estado . '</span>';
             }
         }
@@ -70,6 +73,23 @@ class Servicios extends Controller
     {
         $data = $this->model->getServicio($id);
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        die();
+    }
+
+    // Totales del servicio e historial de pagos (ventana "Abonos")
+    public function abonos(int $id)
+    {
+        // servicios.js pinta estos datos con textContent (no como HTML), así que no hace falta escapar
+        $data = $this->model->datosAbonos($id);
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        die();
+    }
+
+    // Registra un pago parcial; el modelo valida el monto contra lo pendiente
+    public function registrarAbono(int $id)
+    {
+        $msg = $this->model->registrarAbono($id, $_POST['monto'] ?? '', $_SESSION['id_usuario']);
+        echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();
     }
 
