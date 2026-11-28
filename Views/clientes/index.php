@@ -9,7 +9,7 @@
                 <thead>
                     <tr>
                         <th>Id</th>
-                        <th>Dni</th>
+                        <th>Cédula</th>
                         <th>Nombre</th>
                         <th>Teléfono</th>
                         <th>Dirección</th>
@@ -54,8 +54,8 @@
                     </div>
                     <div class="form-floating mb-3">
                         <input type="hidden" id="id" name="id">
-                        <input id="dni" class="form-control" type="number" name="dni" placeholder="Documento de Identidad">
-                        <label for="dni"><i class="fas fa-id-card"></i> Dni <span class="text-danger fw-bold">*</span> </label>
+                        <input id="cedula" class="form-control" type="number" name="cedula" placeholder="Cédula">
+                        <label for="cedula"><i class="fas fa-id-card"></i> Cédula <span class="text-danger fw-bold">*</span> </label>
                     </div>
                     <div class="form-floating mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="El nombre es requerido">
                         <input id="nombre" class="form-control" type="text" name="nombre" placeholder="Nombre del cliente" required>

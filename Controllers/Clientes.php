@@ -59,7 +59,7 @@ class Clientes extends Controller{
         // 1. Recibir datos de la vista
         $datos = array(
             'id'        => strClean($_POST['id']),
-            'dni'       => strClean($_POST['dni']),
+            'cedula'    => strClean($_POST['cedula']),
             'nombre'    => strClean($_POST['nombre']),
             'telefono'  => strClean($_POST['telefono']),
             'direccion' => strClean($_POST['direccion'])
@@ -121,7 +121,7 @@ class Clientes extends Controller{
         $this->soloCliente();
         $datos = array(
             'nombre'    => strClean($_POST['nombre']),
-            'dni'       => strClean($_POST['dni']),
+            'cedula'    => strClean($_POST['cedula']),
             'correo'    => strClean($_POST['correo']),
             'telefono'  => strClean($_POST['telefono']),
             'direccion' => strClean($_POST['direccion'])

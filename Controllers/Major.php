@@ -19,7 +19,7 @@ class Major extends Controller
         } else {
             // 1. Recibir datos de la vista
             $datos = array(
-                'dni'       => strClean($_POST['dni'] ?? ''),
+                'cedula'    => strClean($_POST['cedula'] ?? ''),
                 'nombre'    => strClean($_POST['nombre']),
                 'codphone'  => strClean($_POST['codphone']),
                 'telefono'  => strClean($_POST['telefono']),

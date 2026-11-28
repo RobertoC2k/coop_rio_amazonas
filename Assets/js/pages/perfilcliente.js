@@ -4,8 +4,8 @@ function actualizarDatos(e) {
     const correo = document.getElementById('correo').value;
     const telefono = document.getElementById('telefono').value;
     const direccion = document.getElementById('direccion').value;
-    const dni = document.getElementById('dni').value;
-    if (nombre == '' || dni == '' || correo == '' || telefono == '' || direccion == '') {
+    const cedula = document.getElementById('cedula').value;
+    if (nombre == '' || cedula == '' || correo == '' || telefono == '' || direccion == '') {
         alertify.error("Todos los campos son requeridos");
     } else {
         const url = base_url + 'clientes/actualizarDato';

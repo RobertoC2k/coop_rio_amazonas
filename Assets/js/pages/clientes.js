@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
             dataSrc: ''
         },
         columns: [{ 'data': 'id' },
-        { 'data': 'dni' },
+        { 'data': 'cedula' },
         { 'data': 'nombre' },
         { 'data': 'telefono' },
         { 'data': 'direccion' },
@@ -39,11 +39,11 @@ function frmCliente() {
 }
 function registrarCli(e) {
     e.preventDefault();
-    const dni = document.getElementById("dni").value;
+    const cedula = document.getElementById("cedula").value;
     const nombre = document.getElementById("nombre").value;
     const telefono = document.getElementById("telefono").value;
     const direccion = document.getElementById("direccion").value;
-    if (dni == '' || nombre == '' || telefono == '' || direccion == '') {
+    if (cedula == '' || nombre == '' || telefono == '' || direccion == '') {
         alertify.error("Todos los campos son requeridos");
     } else {
         const url = base_url + 'clientes/registrar';
@@ -77,7 +77,7 @@ function btnEditarCli(id) {
         if (this.readyState == 4 && this.status == 200) {
             const res = JSON.parse(this.responseText);
             document.getElementById("id").value = res.id;
-            document.getElementById("dni").value = res.dni;
+            document.getElementById("cedula").value = res.cedula;
             document.getElementById("nombre").value = res.nombre;
             document.getElementById("telefono").value = res.telefono;
             document.getElementById("direccion").value = res.direccion;

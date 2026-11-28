@@ -155,7 +155,7 @@ class ReglasTransporte extends Query
 
     public function getServicio(int $id)
     {
-        $sql = "SELECT s.*, c.dni, c.nombre, c.telefono, c.direccion, v.placa, v.modelo, t.tipo FROM servicios s
+        $sql = "SELECT s.*, c.cedula, c.nombre, c.telefono, c.direccion, v.placa, v.modelo, t.tipo FROM servicios s
                 INNER JOIN clientes c ON c.id = s.id_cliente
                 INNER JOIN vehiculos v ON v.id = s.id_vehiculo
                 INNER JOIN tipos t ON t.id = v.id_tipo

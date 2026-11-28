@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function(){
       });
     formulario.addEventListener('submit', function(e){
         e.preventDefault();
-        if (formulario.dni.value == '' || formulario.nombre.value == '' || formulario.telefono.value == ''
+        if (formulario.cedula.value == '' || formulario.nombre.value == '' || formulario.telefono.value == ''
         || formulario.correo.value == '' || formulario.direccion.value == ''
         || formulario.clave.value == '') {
             alertify.error("Todos los campos son requeridos");

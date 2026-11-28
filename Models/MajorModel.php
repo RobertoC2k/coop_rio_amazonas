@@ -21,11 +21,11 @@ class MajorModel extends Query
     public function registrarCliente(array $d)
     {
         // 1. Campos obligatorios
-        if (empty($d['dni']) || empty($d['nombre']) || empty($d['telefono']) || empty($d['correo']) || empty($d['clave']) || empty($d['direccion'])) {
+        if (empty($d['cedula']) || empty($d['nombre']) || empty($d['telefono']) || empty($d['correo']) || empty($d['clave']) || empty($d['direccion'])) {
             return array('msg' => 'Todos los campos son requeridos', 'icono' => 'error');
         }
         // La cédula identifica al cliente (igual que en el módulo Clientes del personal)
-        if (!ctype_digit($d['dni']) || strlen($d['dni']) != 10) {
+        if (!ctype_digit($d['cedula']) || strlen($d['cedula']) != 10) {
             return array('msg' => 'La cédula debe tener 10 dígitos', 'icono' => 'error');
         }
         // 2. Correo válido y contraseña de al menos 6 caracteres
@@ -43,7 +43,7 @@ class MajorModel extends Query
 
         // 4. ¿La cédula ya existe? Evita el cliente duplicado cuando el personal ya lo había
         //    registrado en el módulo Clientes (sin correo ni clave, porque ese formulario no los pide).
-        $existente = $this->getClientePorDni($d['dni']);
+        $existente = $this->getClientePorCedula($d['cedula']);
         if (!empty($existente)) {
             if (!empty($existente['correo'])) {
                 return array('msg' => 'Ya tienes una cuenta con esa cédula. Inicia sesión', 'icono' => 'error');
@@ -60,7 +60,7 @@ class MajorModel extends Query
         }
 
         // 5. Cliente nuevo
-        $id = $this->register($d['dni'], $d['nombre'], $d['correo'], $d['codphone'], $d['telefono'], $d['direccion'], $clave);
+        $id = $this->register($d['cedula'], $d['nombre'], $d['correo'], $d['codphone'], $d['telefono'], $d['direccion'], $clave);
         return ($id > 0)
             ? array('msg' => 'Registrado con éxito', 'icono' => 'success')
             : array('msg' => 'Error al registrarse', 'icono' => 'error');
@@ -92,15 +92,15 @@ class MajorModel extends Query
         return $this->select("SELECT id FROM clientes WHERE $item = ?", array($valor));
     }
 
-    public function register($dni, $nombre, $correo, $codphone, $telefono, $direccion, $clave)
+    public function register($cedula, $nombre, $correo, $codphone, $telefono, $direccion, $clave)
     {
-        $sql = "INSERT INTO clientes (dni, nombre, correo, codphone, telefono, direccion, clave) VALUES (?,?,?,?,?,?,?)";
-        return $this->insertar($sql, [$dni, $nombre, $correo, $codphone, $telefono, $direccion, $clave]);
+        $sql = "INSERT INTO clientes (cedula, nombre, correo, codphone, telefono, direccion, clave) VALUES (?,?,?,?,?,?,?)";
+        return $this->insertar($sql, [$cedula, $nombre, $correo, $codphone, $telefono, $direccion, $clave]);
     }
 
-    public function getClientePorDni($dni)
+    public function getClientePorCedula($cedula)
     {
-        return $this->select("SELECT id, correo, telefono FROM clientes WHERE dni = ?", array($dni));
+        return $this->select("SELECT id, correo, telefono FROM clientes WHERE cedula = ?", array($cedula));
     }
 
     // Completa el registro que creó el personal con los datos de acceso a la web

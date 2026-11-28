@@ -42,7 +42,7 @@ $pdf->SetTextColor(0, 0, 0);
 $pdf->SetFont('Arial', 'B', 9);
 $pdf->Cell(135, 10, 'Datos del Cliente', 0, 1, 'C');
 $pdf->SetFont('Arial', '', 9);
-$pdf->Cell(40, 5, 'DOC: ' . $servicio['dni'], 1, 0, 'L');
+$pdf->Cell(40, 5, 'DOC: ' . $servicio['cedula'], 1, 0, 'L');
 $pdf->Cell(95, 5, 'NOMBRE: ' . textoPdf($servicio['nombre']), 1, 1, 'L');
 $pdf->Cell(65, 5, textoPdf('DIRECCIÓN: ' . $servicio['direccion']), 1, 0, 'L');
 $pdf->Cell(70, 5, textoPdf('TELÉFONO: ' . $servicio['telefono']), 1, 1, 'L');

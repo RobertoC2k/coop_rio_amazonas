@@ -6,7 +6,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <ul class="list-group">
-                    <li class="list-group-item active">Identidad: <?php echo escapar($data['dni']); ?></li>
+                    <li class="list-group-item active">Identidad: <?php echo escapar($data['cedula']); ?></li>
                     <li class="list-group-item">Correo: <?php echo escapar($data['correo']); ?></li>
                     <li class="list-group-item active">Teléfono: <?php echo escapar($data['telefono']); ?></li>
                     <li class="list-group-item">Dirección: <?php echo escapar($data['direccion']); ?></li>
@@ -31,8 +31,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating mb-3">
-                                <input id="dni" class="form-control" type="text" name="dni" placeholder="Identidad" value="<?php echo escapar($data['dni']); ?>" required>
-                                <label for="dni"><i class="fas fa-list"></i> Identidad</label>
+                                <input id="cedula" class="form-control" type="text" name="cedula" placeholder="Identidad" value="<?php echo escapar($data['cedula']); ?>" required>
+                                <label for="cedula"><i class="fas fa-list"></i> Identidad</label>
                             </div>
                         </div>
                         <div class="col-md-6">
